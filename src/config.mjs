@@ -1,0 +1,37 @@
+// Site-wide settings. Change SITE_URL to your real domain before deploying (no trailing slash).
+export const SITE_URL = process.env.SITE_URL || 'https://economi.cymru';
+export const SITE_NAME = { en: 'Wales Economy Explained', cy: 'Economi Cymru wedi’i Egluro' };
+export const TAGLINE = {
+  en: 'Facts and official data on the economy of Wales – no spin.',
+  cy: 'Ffeithiau a data swyddogol am economi Cymru – heb sbin.',
+};
+export const UPDATED = '2026-11-18';
+
+// Route table: key -> [english path, welsh path]
+export const ROUTES = {
+  home: ['/', '/cy/'],
+  funding: ['/welsh-government-budget/', '/cy/cyllideb-llywodraeth-cymru/'],
+  finances: ['/public-finances/', '/cy/cyllid-cyhoeddus/'],
+  economy: ['/economy/', '/cy/economi/'],
+  trade: ['/trade/', '/cy/masnach/'],
+  counciltax: ['/council-tax/', '/cy/treth-gyngor/'],
+  jobs: ['/jobs/', '/cy/swyddi/'],
+  incomes: ['/incomes/', '/cy/incwm/'],
+  counties: ['/counties/', '/cy/siroedd/'],
+  sources: ['/sources/', '/cy/ffynonellau/'],
+  about: ['/about/', '/cy/amdanom/'],
+};
+export const NAV = ['funding', 'finances', 'economy', 'trade', 'counciltax', 'jobs', 'incomes', 'counties'];
+export const NAV_LABEL = {
+  home: ['Home', 'Hafan'],
+  funding: ['Budget & Barnett', 'Cyllideb a Barnett'],
+  finances: ['Tax & spending', 'Treth a gwariant'],
+  economy: ['Economy', 'Economi'],
+  trade: ['Trade', 'Masnach'],
+  counciltax: ['Council tax', 'Treth gyngor'],
+  jobs: ['Jobs', 'Swyddi'],
+  incomes: ['Incomes', 'Incwm'],
+  counties: ['Counties', 'Siroedd'],
+  sources: ['Sources', 'Ffynonellau'],
+  about: ['About', 'Amdanom'],
+};

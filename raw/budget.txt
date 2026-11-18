@@ -1,0 +1,42 @@
+# Welsh Government budget — compiled from cited official documents (cash, £bn unless noted)
+#HEADLINE_BUDGET year|£bn|label|source
+1999-00|7.8|Total Welsh budget (CSR 1998 plan)|Hansard HC Deb 14 Dec 1998, written answers (Welsh budget provision £7,812m)
+2014-15|15.3|Wales DEL allocated to departments|Senedd Research, Draft Budget 2014-15 headlines (Oct 2013)
+2015-16|15.1|Total Welsh budget|Welsh Government written statement, UK Spending Round 26 June 2013
+2016-17|15.2|Total expenditure within Wales DEL|Welsh Government Supplementary Budget 2016-17 note (Table 2.1)
+2025-26|26.0|Final Budget spending commitments|Welsh Government, Final Budget 2025-26 (Senedd vote 4 March 2025)
+2026-27|27.7|Funding available (block grant + devolved taxes + borrowing)|Welsh Government Final Budget Report 2026-27 (Jan 2026)
+#FUNDING_2026_27 £m (Final Budget 2026-27)
+Block grant (resource DEL + capital after tax adjustments)|22100
+Welsh rates of income tax|3977
+Non-domestic (business) rates|1101
+Land transaction tax|399
+Landfill disposals tax|37
+Capital borrowing|165
+TOTAL|27700
+#BGA_2026_27 £m  block grant adjustments (amount removed from block grant because tax devolved)
+WRIT|-3493
+LTT|-381
+LDT|-14
+NET_GAIN_FROM_TAX_DEVOLUTION|524
+#WRIT outturn £m (HMRC)
+2022-23|2618
+2023-24|2968
+#WRA receipts (LTT+LDT) £m
+2024-25|372
+#SPENDING_2026_27 £m by main expenditure group (resource+capital)
+Health and Social Care|13228
+Housing and Local Government|7191
+Education|2267
+Transport|1268
+Climate Change and Rural Affairs|929
+Economy, Energy and Planning|843
+Central Services and Administration|475
+Social Justice|164
+#RELATIVE_FUNDING (IFS) UK govt funding per person for WG vs comparable English spending
+2010-11|117.5
+2019-20|124.5
+2024-25|124.5
+2028-29 (proj)|120.7
+#BARNETT block grant 2024-25 before tax adjustments: Wales £20bn (IfG citing HMT Block Grant Transparency Oct 2025)
+#CRA identifiable spending 2024-25: Wales £48.3bn, £15,155 per head (UK avg £13,504; England £13,134)

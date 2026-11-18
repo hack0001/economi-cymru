@@ -1,0 +1,60 @@
+# Source: HMRC Regional Trade in Goods Statistics via api.uktradeinfo.com (RTS, GovRegionId 10 = Wales), queried 18 Nov 2026. Goods only, current prices. Latest years subject to revision.
+#ANNUAL £bn  year|exports|imports
+2013|16.61|17.37
+2014|14.14|16.61
+2015|13.25|14.31
+2016|14.63|14.94
+2017|16.48|17.61
+2018|17.19|18.35
+2019|17.76|18.22
+2020|13.53|14.26
+2021|15.21|16.15
+2022|20.49|24.09
+2023|19.46|21.26
+2024|18.90|21.31
+2025|19.17|20.38
+#EXPORTS by SITC division £m 2013,2025
+Power generating machinery & equipment|1642,4311
+Petroleum & petroleum products (oil)|4861,2548
+Other transport equipment (mainly aircraft & parts)|2327,2480
+Iron & steel|1141,845
+Electrical machinery & appliances|853,795
+Medicinal & pharmaceutical products|462,789
+Chemical materials & products|194,585
+Specialised industrial machinery|227,553
+Road vehicles|394,545
+Non-ferrous metals|415,510
+Scientific & controlling instruments|322,443
+Electric current|109,372
+#IMPORTS by SITC division £m 2013,2025
+Petroleum & petroleum products (oil)|5761,4821
+Power generating machinery & equipment|1426,3774
+Electrical machinery & appliances|721,993
+Iron & steel|248,970
+Road vehicles|1189,939
+Other transport equipment|575,853
+Miscellaneous manufactured articles|366,726
+Non-ferrous metals|423,535
+General industrial machinery|507,522
+#EXPORT PARTNERS 2025 £m
+United States|2726
+Germany|2580
+Ireland|2279
+France|1728
+Netherlands|1024
+Belgium|894
+China|677
+Spain|534
+Canada|511
+India|342
+#IMPORT PARTNERS 2025 £m
+United States|3872
+China|1757
+Netherlands|1267
+France|1208
+Germany|1188
+Libya|897
+Belgium|866
+Spain|825
+Turkey|665
+India|619

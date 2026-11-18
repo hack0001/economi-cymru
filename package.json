@@ -1,0 +1,12 @@
+{
+  "name": "wales-economy-explained",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bilingual static site explaining the Welsh economy with official data",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "serve": "npx --yes serve dist"
+  },
+  "engines": { "node": ">=18" }
+}
