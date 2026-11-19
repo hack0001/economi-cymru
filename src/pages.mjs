@@ -50,46 +50,62 @@ const indName = (k, lang) => (lang === 'cy' ? IND_CY[k] || k : IND_EN_SHORT[k] |
 // ============================================================ HOME
 export function home(lang) {
   const t = T(lang);
-  const cards = [
-    ['funding', t('Where the Welsh Government’s money comes from', 'O ble daw arian Llywodraeth Cymru'), t(`The ${bn(K.budget)} budget, the Barnett formula and devolved taxes – with a Barnett calculator.`, `Cyllideb ${bn(K.budget)}, fformiwla Barnett a threthi datganoledig – gyda chyfrifiannell Barnett.`)],
-    ['finances', t('Tax raised vs money spent in Wales', 'Treth a godir yn erbyn arian a werir yng Nghymru'), t('Revenue, spending and the fiscal gap every year since 1999.', 'Refeniw, gwariant a’r bwlch cyllidol bob blwyddyn ers 1999.')],
-    ['economy', t('What Wales earns its living from', 'Sut mae Cymru’n ennill ei bywoliaeth'), t('Output by industry since 1998: manufacturing, health, property, services.', 'Allbwn fesul diwydiant ers 1998: gweithgynhyrchu, iechyd, eiddo, gwasanaethau.')],
-    ['trade', t('Exports and imports', 'Allforion a mewnforion'), t('What Wales sells to the world, what it buys, and who with.', 'Beth mae Cymru’n ei werthu i’r byd, beth mae’n ei brynu, a gyda phwy.')],
-    ['counciltax', t('Council tax by county', 'Treth gyngor fesul sir'), t('Band D bills for all 22 councils, 1996 to 2026-27.', 'Biliau Band D ar gyfer pob un o’r 22 cyngor, 1996 hyd 2026-27.')],
-    ['jobs', t('Employment and unemployment', 'Cyflogaeth a diweithdra'), t('Which areas have the highest and lowest rates.', 'Pa ardaloedd sydd â’r cyfraddau uchaf ac isaf.')],
-    ['incomes', t('Wages and household income', 'Cyflogau ac incwm aelwydydd'), t('Pay and disposable income by county, compared with the UK.', 'Cyflog ac incwm gwario fesul sir, o’i gymharu â’r DU.')],
-    ['counties', t('Explore your county', 'Archwiliwch eich sir'), t('A data profile for each of the 22 local authorities.', 'Proffil data ar gyfer pob un o’r 22 awdurdod lleol.')],
+  const fund = Object.fromEntries(wales.budget.funding.map((f) => [f.name, f.v]));
+  const tot = fund.TOTAL;
+  const seg = [
+    { v: fund['Block grant (resource DEL + capital after tax adjustments)'], c: 'var(--c1)', l: t('Block grant from the UK Government, set through the Barnett formula', 'Grant bloc gan Lywodraeth y DU, wedi’i bennu drwy fformiwla Barnett') },
+    { v: fund['Welsh rates of income tax'], c: 'var(--c2)', l: t('Welsh rates of income tax', 'Cyfraddau treth incwm Cymru') },
+    { v: fund['Non-domestic (business) rates'], c: 'var(--c3)', l: t('Business rates', 'Ardrethi busnes'), tiny: true },
+    { v: fund['Land transaction tax'] + fund['Landfill disposals tax'] + fund['Capital borrowing'], c: 'var(--c8)', l: t('Land and landfill taxes, and borrowing', 'Trethi tir a thirlenwi, a benthyca') },
   ];
-  const tm = tileMap(lang, ['gvaTotal', 'gvaPH', 'ct', 'emp', 'gdhi', 'earn']);
+  const per100 = (v) => Math.round((v / tot) * 100);
+  const topics = [
+    ['funding', t('Where the Welsh Government’s money comes from', 'O ble daw arian Llywodraeth Cymru'), t('The budget, the Barnett formula and Welsh taxes, with a calculator.', 'Y gyllideb, fformiwla Barnett a threthi Cymru, gyda chyfrifiannell.'), bn(K.budget), t('budget 2026-27', 'cyllideb 2026-27')],
+    ['finances', t('Tax raised and money spent in Wales', 'Treth a godir ac arian a werir yng Nghymru'), t('Revenue, spending and the gap between them every year since 1999.', 'Refeniw, gwariant a’r bwlch rhyngddynt bob blwyddyn ers 1999.'), bn(K.gap), t('gap in 2024-25', 'bwlch yn 2024-25')],
+    ['economy', t('What Wales earns its living from', 'Sut mae Cymru’n ennill ei bywoliaeth'), t('Output by industry since 1998, and which areas produce the most.', 'Allbwn fesul diwydiant ers 1998, a pha ardaloedd sy’n cynhyrchu fwyaf.'), bn(K.gva), t('output in 2023', 'allbwn yn 2023')],
+    ['trade', t('Exports and imports', 'Allforion a mewnforion'), t('What Wales sells abroad, what it buys and who it trades with.', 'Beth mae Cymru’n ei werthu dramor, beth mae’n ei brynu a gyda phwy.'), '£' + num(K.tradeExp, 1) + 'bn', t('goods exports 2025', 'allforion nwyddau 2025')],
+    ['counciltax', t('Council tax', 'Treth gyngor'), t('Band D bills for all 22 councils, and how they have risen since 1996.', 'Biliau Band D ar gyfer pob un o’r 22 cyngor, a sut maen nhw wedi codi ers 1996.'), gbp(K.ct), t('average band D', 'band D cyfartalog')],
+    ['jobs', t('Jobs and unemployment', 'Swyddi a diweithdra'), t('Employment, unemployment and inactivity in every county.', 'Cyflogaeth, diweithdra ac anweithgarwch ym mhob sir.'), pct(K.emp), t('employment rate', 'cyfradd cyflogaeth')],
+    ['incomes', t('Wages and household income', 'Cyflogau ac incwm aelwydydd'), t('Pay and disposable income by county, compared with the UK.', 'Cyflog ac incwm gwario fesul sir, o’i gymharu â’r DU.'), gbp(last(wales.earn.data.Wales)), t('median weekly pay', 'cyflog wythnosol canolrifol')],
+    ['counties', t('The 22 counties', 'Y 22 sir'), t('A profile of each local authority, with rankings.', 'Proffil o bob awdurdod lleol, gyda safleoedd.'), '22', t('local authorities', 'awdurdod lleol')],
+  ];
   const body = `
 <section class="hero"><div class="wrap">
-<h1>${t('The economy of Wales, in facts and figures', 'Economi Cymru, mewn ffeithiau a ffigurau')}</h1>
-<p class="lede">${t('Where Wales’ money comes from, what it earns, what it trades and how each county compares – built entirely from official statistics, with every figure linked to its source.', 'O ble daw arian Cymru, beth mae’n ei ennill, beth mae’n ei fasnachu a sut mae pob sir yn cymharu – wedi’i adeiladu’n gyfan gwbl o ystadegau swyddogol, gyda phob ffigur wedi’i gysylltu â’i ffynhonnell.')}</p>
-<div class="stats">
-${stat(t('Size of the economy (GVA, 2023)', 'Maint yr economi (GYC, 2023)'), bn(K.gva), t(`${gbp(K.gvaPH)} per person – ${pct(K.gvaIdx)} of the UK average`, `${gbp(K.gvaPH)} y pen – ${pct(K.gvaIdx)} o gyfartaledd y DU`))}
-${stat(t('Welsh Government budget 2026-27', 'Cyllideb Llywodraeth Cymru 2026-27'), bn(K.budget), t(`${pct((K.block / K.budget) * 100, 0)} comes as a block grant from the UK Government`, `Daw ${pct((K.block / K.budget) * 100, 0)} fel grant bloc gan Lywodraeth y DU`))}
-${stat(t('Public spending minus revenue, 2024-25', 'Gwariant cyhoeddus llai refeniw, 2024-25'), bn(K.gap), t(`${gbp(K.gapPH)} per person (UK: ${gbp(K.ukPH)})`, `${gbp(K.gapPH)} y pen (DU: ${gbp(K.ukPH)})`))}
-${stat(t('Goods exports, 2025', 'Allforion nwyddau, 2025'), '£' + num(K.tradeExp, 1) + 'bn', t(`Imports: £${num(K.tradeImp, 1)}bn`, `Mewnforion: £${num(K.tradeImp, 1)}bn`))}
-${stat(t('Employment rate (16–64)', 'Cyfradd cyflogaeth (16–64)'), pct(K.emp), t(`UK: ${pct(K.empUK)} · year to June 2026`, `DU: ${pct(K.empUK)} · blwyddyn hyd Mehefin 2026`))}
-${stat(t('Average band D council tax 2026-27', 'Treth gyngor band D gyfartalog 2026-27'), gbp(K.ct), t(`Up ${pct(((K.ct - K.ctPrev) / K.ctPrev) * 100)} on 2025-26`, `Cynnydd o ${pct(((K.ct - K.ctPrev) / K.ctPrev) * 100)} ers 2025-26`))}
-</div></div></section>
+<h1>${t('How the Welsh economy works, in official figures', 'Sut mae economi Cymru’n gweithio, mewn ffigurau swyddogol')}</h1>
+<p class="lede">${t('Where Wales’ public money comes from, what the country earns and trades, and how its 22 counties compare. Every number is taken from official statistics and linked to its source.', 'O ble daw arian cyhoeddus Cymru, beth mae’r wlad yn ei ennill a’i fasnachu, a sut mae ei 22 sir yn cymharu. Daw pob rhif o ystadegau swyddogol ac mae wedi’i gysylltu â’i ffynhonnell.')}</p>
+<div class="money">
+<p class="money-title">${t(`How each £100 of the Welsh Government’s ${bn(tot)} budget is funded, 2026-27`, `Sut caiff pob £100 o gyllideb ${bn(tot)} Llywodraeth Cymru ei ariannu, 2026-27`)}</p>
+<div class="money-bar" role="img" aria-label="${esc(seg.map((x) => `${x.l}: £${per100(x.v)}`).join('; '))}">${seg.map((x) => `<span style="flex:${x.v};background:${x.c}"></span>`).join('')}</div>
+<div class="money-key">${seg.map((x) => `<div${x.tiny ? ' class="k-tiny"' : ''} style="border-top-color:${x.c}"><b>£${per100(x.v)}</b>${x.l}</div>`).join('')}</div>
+<p class="money-note">${t('Source: Welsh Government Final Budget 2026-27.', 'Ffynhonnell: Cyllideb Derfynol Llywodraeth Cymru 2026-27.')} <a href="${href('funding', lang)}">${t('How the Barnett formula works', 'Sut mae fformiwla Barnett yn gweithio')}</a></p>
+</div>
+</div></section>
 <div class="wrap">
-<h2>${t('Explore the data', 'Archwilio’r data')}</h2>
-<div class="cards">${cards.map(([k, h, p]) => `<a class="card" href="${href(k, lang)}"><h3>${h}</h3><p>${p}</p></a>`).join('')}</div>
+<div class="stats">
+${stat(t('Size of the economy in 2023 (gross value added)', 'Maint yr economi yn 2023 (gwerth ychwanegol gros)'), bn(K.gva), t(`${pct(K.gvaIdx)} of the UK average per person`, `${pct(K.gvaIdx)} o gyfartaledd y DU y pen`))}
+${stat(t('Public spending above revenue raised, 2024-25', 'Gwariant cyhoeddus uwchlaw’r refeniw a godwyd, 2024-25'), bn(K.gap), t(`${gbp(K.gapPH)} per person, against ${gbp(K.ukPH)} for the UK`, `${gbp(K.gapPH)} y pen, o’i gymharu â ${gbp(K.ukPH)} i’r DU`))}
+${stat(t('People aged 16–64 in work', 'Pobl 16–64 oed mewn gwaith'), pct(K.emp), t(`UK ${pct(K.empUK)}, year to June 2026`, `DU ${pct(K.empUK)}, blwyddyn hyd Mehefin 2026`))}
+${stat(t('Goods exported in 2025', 'Nwyddau a allforiwyd yn 2025'), '£' + num(K.tradeExp, 1) + 'bn', t(`Imports £${num(K.tradeImp, 1)}bn`, `Mewnforion £${num(K.tradeImp, 1)}bn`))}
+</div>
+<h2>${t('Explore the economy', 'Archwilio’r economi')}</h2>
+<ul class="topics">${topics.map(([k, h, d, f, fl]) => `<li><a href="${href(k, lang)}"><span class="t-title">${h}</span><span class="t-desc">${d}</span><span class="t-fig">${f}<small>${fl}</small></span></a></li>`).join('')}</ul>
 <h2>${t('How the 22 counties compare', 'Sut mae’r 22 sir yn cymharu')}</h2>
-<p>${t('Pick a measure. Each square is a local authority, placed roughly where it sits on the map. Click a county for its full profile.', 'Dewiswch fesur. Mae pob sgwâr yn awdurdod lleol, wedi’i osod yn fras lle mae ar y map. Cliciwch ar sir i weld ei phroffil llawn.')}</p>
-${tm}
-<h2>${t('Wales’ output per person has stayed at around three-quarters of the UK average', 'Mae allbwn y pen Cymru wedi aros tua thri chwarter cyfartaledd y DU')}</h2>
-${chart({ lang, title: t('GVA per person, Wales as % of UK average, 1998–2023', 'GYC y pen, Cymru fel % o gyfartaledd y DU, 1998–2023'), sub: t('UK = 100. Gross value added measures the value of goods and services produced.', 'DU = 100. Mae gwerth ychwanegol gros yn mesur gwerth y nwyddau a’r gwasanaethau a gynhyrchir.'), source: src('gvaLA'),
+<p>${t('Choose a measure. Each square is a local authority, placed roughly where it sits on the map of Wales. Select a county to see its profile.', 'Dewiswch fesur. Mae pob sgwâr yn awdurdod lleol, wedi’i osod yn fras lle mae ar fap Cymru. Dewiswch sir i weld ei phroffil.')}</p>
+${tm(lang)}
+<h2>${t('Output per person has stayed at about three-quarters of the UK level', 'Mae allbwn y pen wedi aros tua thri chwarter lefel y DU')}</h2>
+<p>${t('Gross value added per person in Wales, as a percentage of the UK average. The figure has moved within a narrow band since 1998.', 'Gwerth ychwanegol gros y pen yng Nghymru, fel canran o gyfartaledd y DU. Mae’r ffigur wedi symud o fewn band cul ers 1998.')}</p>
+${chart({ lang, legend: false, title: t('GVA per person, Wales as a percentage of the UK average, 1998 to 2023', 'GYC y pen, Cymru fel canran o gyfartaledd y DU, 1998 i 2023'), sub: t('UK average = 100', 'Cyfartaledd y DU = 100'), source: src('gvaLA'),
     cfg: { type: 'line', labels: GV.years, series: [{ name: 'Wales', values: GV.idx }], fmt: { dec: 1 }, min: 60, max: 80 } })}
-<div class="note"><p><strong>${t('Our approach', 'Ein dull')}</strong></p><p>${t('This site shows what the official numbers say and how they have changed. It does not argue for any party or policy. Where a figure depends on how it is measured, we explain the method and link to the original source so you can check it yourself.', 'Mae’r wefan hon yn dangos beth mae’r rhifau swyddogol yn ei ddweud a sut maen nhw wedi newid. Nid yw’n dadlau dros unrhyw blaid na pholisi. Lle mae ffigur yn dibynnu ar sut y caiff ei fesur, rydym yn egluro’r dull ac yn cysylltu â’r ffynhonnell wreiddiol er mwyn i chi allu ei gwirio eich hun.')} <a href="${href('about', lang)}">${t('More about this site', 'Rhagor am y wefan hon')}</a>.</p></div>
+<h2>${t('How this site works', 'Sut mae’r wefan hon yn gweithio')}</h2>
+<p>${t('The site reports what the official numbers say and how they have changed. It does not argue for any party or policy. Where a figure depends on how it is measured, the method is explained next to it, with a link to the original source.', 'Mae’r wefan yn adrodd yr hyn y mae’r rhifau swyddogol yn ei ddweud a sut maen nhw wedi newid. Nid yw’n dadlau dros unrhyw blaid na pholisi. Lle mae ffigur yn dibynnu ar sut y caiff ei fesur, caiff y dull ei egluro wrth ei ymyl, gyda dolen i’r ffynhonnell wreiddiol.')} <a href="${href('about', lang)}">${t('About this site', 'Am y wefan hon')}</a></p>
 </div>`;
   return {
-    title: t('Wales Economy Explained – facts and data on the Welsh economy', 'Economi Cymru wedi’i Egluro – ffeithiau a data am economi Cymru'),
-    desc: t(`Official data on the Welsh economy: the ${bn(K.budget)} Welsh budget and Barnett formula, tax vs spending, GVA by industry, exports, council tax and jobs in all 22 counties.`, `Data swyddogol am economi Cymru: cyllideb ${bn(K.budget)}, fformiwla Barnett, treth a gwariant, GYC fesul diwydiant, allforion, treth gyngor a swyddi ym mhob un o’r 22 sir.`),
+    title: t('Wales Economy Explained: facts and data on the Welsh economy', 'Economi Cymru wedi’i Egluro: ffeithiau a data am economi Cymru'),
+    desc: t(`Official data on the Welsh economy: the ${bn(K.budget)} Welsh budget and Barnett formula, tax and spending, GVA by industry, exports, council tax and jobs in all 22 counties.`, `Data swyddogol am economi Cymru: cyllideb ${bn(K.budget)}, fformiwla Barnett, treth a gwariant, GYC fesul diwydiant, allforion, treth gyngor a swyddi ym mhob un o’r 22 sir.`),
     body, noWrap: true,
   };
 }
+const tm = (lang) => tileMap(lang, ['gvaTotal', 'gvaPH', 'gdhi', 'earn', 'ct', 'emp']);
 
 // ---------- Tile map ----------
 function tileMap(lang, keys) {
@@ -135,17 +151,18 @@ ${chart({ lang, title: t('Where the Welsh Government’s 2026-27 funding comes f
 <h2>${t('How the Barnett formula works', 'Sut mae fformiwla Barnett yn gweithio')}</h2>
 <p>${t('The Barnett formula does not set the whole Welsh budget from scratch each year. It only decides how much the block grant <em>changes</em>. When the UK Government changes spending in England on something that is devolved in Wales – such as health, schools or local councils – Wales gets a share of that change.', 'Nid yw fformiwla Barnett yn pennu’r gyllideb Gymreig gyfan o’r newydd bob blwyddyn. Dim ond penderfynu faint mae’r grant bloc yn <em>newid</em> y mae. Pan fydd Llywodraeth y DU yn newid gwariant yn Lloegr ar rywbeth sydd wedi’i ddatganoli yng Nghymru – fel iechyd, ysgolion neu gynghorau lleol – mae Cymru’n cael cyfran o’r newid hwnnw.')}</p>
 <p>${t('The share is worked out by multiplying three things together, plus an extra factor for Wales agreed in 2016:', 'Caiff y gyfran ei chyfrifo drwy luosi tri pheth gyda’i gilydd, ynghyd â ffactor ychwanegol i Gymru a gytunwyd yn 2016:')}</p>
-<ol>
+<ol class="steps">
 <li>${t('<strong>The change in UK Government spending</strong> on the English programme.', '<strong>Y newid yng ngwariant Llywodraeth y DU</strong> ar y rhaglen yn Lloegr.')}</li>
 <li>${t('<strong>The comparability percentage</strong> – how much of that department’s work is devolved in Wales (for example, close to 100% for health).', '<strong>Y ganran gymaroldeb</strong> – faint o waith yr adran honno sydd wedi’i ddatganoli yng Nghymru (er enghraifft, bron 100% ar gyfer iechyd).')}</li>
 <li>${t('<strong>The population proportion</strong> – Wales’ population as a share of England’s: 5.49% at Spending Review 2025.', '<strong>Y gyfran poblogaeth</strong> – poblogaeth Cymru fel cyfran o boblogaeth Lloegr: 5.49% yn Adolygiad Gwariant 2025.')}</li>
 <li>${t('<strong>A needs-based factor</strong> of 105%, added under the 2016 fiscal framework because Wales’ needs per person are assessed as higher than England’s.', '<strong>Ffactor yn seiliedig ar angen</strong> o 105%, a ychwanegwyd o dan fframwaith cyllidol 2016 am fod anghenion Cymru y pen yn cael eu hasesu’n uwch nag yn Lloegr.')}</li>
 </ol>
-<div class="calc barnett"><h3 style="margin-top:0">${t('Barnett calculator', 'Cyfrifiannell Barnett')}</h3>
-<div class="row"><label>${t('Change in UK Government spending on an English programme (£m)', 'Newid yng ngwariant Llywodraeth y DU ar raglen yn Lloegr (£m)')}<br><input type="number" name="amt" value="1000" step="50"></label></div>
-<div class="row"><label>${t('Comparability', 'Cymaroldeb')}: <span class="comp-out">100%</span><br><input type="range" name="comp" min="0" max="100" value="100" style="width:260px"></label></div>
-<div class="row">${t('Change to the Welsh block grant', 'Newid i’r grant bloc Cymreig')}: <output>–</output></div>
-<p class="src">${t('Formula: change × comparability × 5.49% × 1.05. Source', 'Fformiwla: newid × cymaroldeb × 5.49% × 1.05. Ffynhonnell')}: ${src('sofp')}</p></div>
+<div class="calc barnett"><h3>${t('Barnett calculator', 'Cyfrifiannell Barnett')}</h3>
+<div class="inputs"><label>${t('Change in UK Government spending on a programme in England, £ million', 'Newid yng ngwariant Llywodraeth y DU ar raglen yn Lloegr, £ miliwn')}<input type="number" name="amt" value="1000" step="50"></label>
+<label>${t('Share of that programme devolved in Wales (comparability)', 'Cyfran o’r rhaglen honno sydd wedi’i datganoli yng Nghymru (cymaroldeb)')}: <span class="comp-out">100%</span><input type="range" name="comp" min="0" max="100" value="100"></label></div>
+<div class="result"><span>${t('Change to the Welsh block grant', 'Newid i’r grant bloc Cymreig')}</span><output>–</output></div>
+<p class="src">${t('Calculated as change × comparability × 5.49% × 1.05. Source', 'Wedi’i gyfrifo fel newid × cymaroldeb × 5.49% × 1.05. Ffynhonnell')}: ${src('sofp')}</p></div>
+
 <p>${t('The Welsh Government decides for itself how to spend the block grant. A Barnett share that arrives because of extra English health spending does not have to be spent on health in Wales.', 'Llywodraeth Cymru sy’n penderfynu sut i wario’r grant bloc. Nid oes rhaid gwario cyfran Barnett sy’n cyrraedd oherwydd gwariant iechyd ychwanegol yn Lloegr ar iechyd yng Nghymru.')}</p>
 
 <div class="note"><p><strong>${t('Is the block grant “money from English taxpayers”?', 'Ai “arian gan drethdalwyr Lloegr” yw’r grant bloc?')}</strong></p>
@@ -264,7 +281,7 @@ export function economy(lang) {
 <div class="stats">
 ${stat(t('GVA 2023', 'GYC 2023'), bn(K.gva), t(`${bn(GV.m[0])} in 1998 (cash)`, `${bn(GV.m[0])} yn 1998 (arian parod)`))}
 ${stat(t('GVA per person', 'GYC y pen'), gbp(K.gvaPH), t(`${pct(K.gvaIdx)} of UK average (1998: ${pct(K.gvaIdx98)})`, `${pct(K.gvaIdx)} o gyfartaledd y DU (1998: ${pct(K.gvaIdx98)})`))}
-${stat(t('Largest industry', 'Diwydiant mwyaf'), t('Manufacturing', 'Gweithgynhyrchu'), t(`${bn(I[top][GN])} · ${pct(share(top, GN))} of GVA (UK ${pct(ukShare(top, 3))})`, `${bn(I[top][GN])} · ${pct(share(top, GN))} o GYC (DU ${pct(ukShare(top, 3))})`))}
+${stat(t('Largest industry by output', 'Diwydiant mwyaf yn ôl allbwn'), t('Manufacturing', 'Gweithgynhyrchu'), t(`${bn(I[top][GN])}, or ${pct(share(top, GN))} of the economy (UK ${pct(ukShare(top, 3))})`, `${bn(I[top][GN])}, neu ${pct(share(top, GN))} o’r economi (DU ${pct(ukShare(top, 3))})`))}
 ${stat(t('Health & social work', 'Iechyd a gwaith cymdeithasol'), bn(I['Human health and social work activities'][GN]), t(`${pct(share('Human health and social work activities', GN))} of GVA (1998: ${pct(share('Human health and social work activities', 0))})`, `${pct(share('Human health and social work activities', GN))} o GYC (1998: ${pct(share('Human health and social work activities', 0))})`))}
 </div>
 ${chart({ lang, title: t('Wales’ economy by industry, 2023', 'Economi Cymru fesul diwydiant, 2023'), sub: t('Gross value added, £ million', 'Gwerth ychwanegol gros, £ miliwn'), source: src('gvaInd'), legend: false,
@@ -495,13 +512,13 @@ export function county(p, lang) {
   const body = `
 <p class="lede">${t(`${n} is one of Wales’ 22 local authorities, in ${p.region}. Its economy produced ${bn(last(g.m))} of output in 2023 – ${pct(share)} of Wales’ total – and its band D council tax for 2026-27 is ${gbp(ctv)}.`, `Mae ${n} yn un o 22 awdurdod lleol Cymru, yn ${regionCy[p.region]}. Cynhyrchodd ei heconomi ${bn(last(g.m))} o allbwn yn 2023 – ${pct(share)} o gyfanswm Cymru – a’i threth gyngor band D ar gyfer 2026-27 yw ${gbp(ctv)}.`)}</p>
 <div class="stats">
-${stat(t('Economic output (GVA) 2023', 'Allbwn economaidd (GYC) 2023'), bn(last(g.m), 2), t(`Rank: ${rk(R.gvaTotal[p.slug])} · ${pct(share)} of Wales`, `Safle: ${rk(R.gvaTotal[p.slug])} · ${pct(share)} o Gymru`))}
-${stat(t('GVA per person', 'GYC y pen'), gbp(last(g.ph)), t(`${num(last(g.idx), 1)}% of UK average · ${rk(R.gvaPH[p.slug])}`, `${num(last(g.idx), 1)}% o gyfartaledd y DU · ${rk(R.gvaPH[p.slug])}`))}
-${stat(t('Household income per person 2024', 'Incwm aelwydydd y pen 2024'), gbp(last(p.gdhi.v)), t(`${num(p.gdhi.idx, 1)}% of UK · ${rk(R.gdhi[p.slug])}`, `${num(p.gdhi.idx, 1)}% o’r DU · ${rk(R.gdhi[p.slug])}`))}
-${stat(t('Band D council tax 2026-27', 'Treth gyngor Band D 2026-27'), gbp(ctv), t(`${pct(((ctv - ctPrev) / ctPrev) * 100)} rise · ${rk(R.ct[p.slug])} (1 = highest)`, `cynnydd o ${pct(((ctv - ctPrev) / ctPrev) * 100)} · ${rk(R.ct[p.slug])} (1 = uchaf)`))}
-${stat(t('Employment rate 16–64', 'Cyfradd cyflogaeth 16–64'), pct(last(p.aps.E)), t(`Wales ${pct(K.emp)} · ${rk(R.emp[p.slug])}`, `Cymru ${pct(K.emp)} · ${rk(R.emp[p.slug])}`))}
-${stat(t('Unemployment rate 16+', 'Cyfradd diweithdra 16+'), uL == null ? t('Not published', 'Heb ei gyhoeddi') : pct(uL), uL == null ? t('Sample too small', 'Sampl rhy fach') : t(`Wales ${pct(K.un)} · low reliability`, `Cymru ${pct(K.un)} · dibynadwyedd isel`))}
-${stat(t('Median full-time weekly pay 2026', 'Cyflog wythnosol canolrifol amser llawn 2026'), gbp(last(p.earn), 2), t(`Wales ${gbp(last(wales.earn.data.Wales), 2)} · workplace-based`, `Cymru ${gbp(last(wales.earn.data.Wales), 2)} · yn ôl gweithle`))}
+${stat(t('Economic output (GVA), 2023', 'Allbwn economaidd (GYC), 2023'), bn(last(g.m), 2), t(`${pct(share)} of the Welsh total, ranked ${rk(R.gvaTotal[p.slug])}`, `${pct(share)} o gyfanswm Cymru, safle ${rk(R.gvaTotal[p.slug])}`))}
+${stat(t('Output per person', 'Allbwn y pen'), gbp(last(g.ph)), t(`${num(last(g.idx), 1)}% of the UK average, ranked ${rk(R.gvaPH[p.slug])}`, `${num(last(g.idx), 1)}% o gyfartaledd y DU, safle ${rk(R.gvaPH[p.slug])}`))}
+${stat(t('Household income per person, 2024', 'Incwm aelwydydd y pen, 2024'), gbp(last(p.gdhi.v)), t(`${num(p.gdhi.idx, 1)}% of the UK average, ranked ${rk(R.gdhi[p.slug])}`, `${num(p.gdhi.idx, 1)}% o gyfartaledd y DU, safle ${rk(R.gdhi[p.slug])}`))}
+${stat(t('Band D council tax, 2026-27', 'Treth gyngor Band D, 2026-27'), gbp(ctv), t(`Up ${pct(((ctv - ctPrev) / ctPrev) * 100)} on last year; ${ordWord(R.ct[p.slug], lang)}`, `Cynnydd o ${pct(((ctv - ctPrev) / ctPrev) * 100)} ar y llynedd; ${ordWord(R.ct[p.slug], lang)}`))}
+${stat(t('Employment rate, ages 16–64', 'Cyfradd cyflogaeth, 16–64 oed'), pct(last(p.aps.E)), t(`Wales ${pct(K.emp)}, ranked ${rk(R.emp[p.slug])}`, `Cymru ${pct(K.emp)}, safle ${rk(R.emp[p.slug])}`))}
+${stat(t('Unemployment rate, ages 16+', 'Cyfradd diweithdra, 16+ oed'), uL == null ? t('Not published', 'Heb ei gyhoeddi') : pct(uL), uL == null ? t('Survey sample too small', 'Sampl yr arolwg yn rhy fach') : t(`Wales ${pct(K.un)}. Low-reliability estimate`, `Cymru ${pct(K.un)}. Amcangyfrif dibynadwyedd isel`))}
+${stat(t('Median full-time weekly pay, 2026', 'Cyflog wythnosol canolrifol amser llawn, 2026'), gbp(last(p.earn), 2), t(`Jobs based here. Wales ${gbp(last(wales.earn.data.Wales), 2)}`, `Swyddi yma. Cymru ${gbp(last(wales.earn.data.Wales), 2)}`))}
 ${stat(t('Population (2023)', 'Poblogaeth (2023)'), num(Math.round(p.pop2023 / 100) * 100), t(`${num(p.aps.EL)} people in work (16+)`, `${num(p.aps.EL)} o bobl mewn gwaith (16+)`))}
 </div>
 ${chart({ lang, title: t(`Economic output in ${n}, 1998–2023`, `Allbwn economaidd yn ${n}, 1998–2023`), source: src('gvaLA'), views: [t('Total £m', 'Cyfanswm £m'), t('Per person vs Wales & UK', 'Y pen o’i gymharu â Chymru a’r DU')],
@@ -515,8 +532,8 @@ ${chart({ lang, title: t(`Band D council tax in ${n}, £`, `Treth gyngor Band D 
 ${chart({ lang, title: t(`Employment rate in ${n}, ages 16–64`, `Cyfradd cyflogaeth yn ${n}, 16–64 oed`), sub: t('Survey estimates; single-year movements may not be significant.', 'Amcangyfrifon arolwg; efallai na fydd symudiadau un flwyddyn yn arwyddocaol.'), source: src('aps'),
     cfg: { type: 'line', labels: per, series: [{ name: n, values: p.aps.E }, { name: t('Wales', 'Cymru'), values: wales.aps.E, dash: '5 4', width: 1.5, color: '--c8' }], fmt: { suffix: '%', dec: 1 } } })}
 <h2>${t(`Other counties in ${p.region}`, `Siroedd eraill yn ${regionCy[p.region]}`)}</h2>
-<div class="county-grid">${same.map((q) => `<a href="${countyHref(q, lang)}">${nm(q, lang)}<small>${t('GVA', 'GYC')} ${bn(last(q.gva.m))} · Band D ${gbp(last(q.ct.v))}</small></a>`).join('')}</div>
-<p><a href="${href('counties', lang)}">${t('Compare all 22 counties →', 'Cymharu pob un o’r 22 sir →')}</a></p>
+<div class="county-grid">${same.map((q) => `<a href="${countyHref(q, lang)}">${nm(q, lang)}<small>${t('Output', 'Allbwn')} ${bn(last(q.gva.m))}, band D ${gbp(last(q.ct.v))}</small></a>`).join('')}</div>
+<p><a href="${href('counties', lang)}">${t('Compare all 22 counties ', 'Cymharu pob un o’r 22 sir ')}</a></p>
 <details><summary>${t('Notes on these figures', 'Nodiadau ar y ffigurau hyn')}</summary><ul>
 <li>${t('GVA and pay are measured where people work; household income is measured where people live. Counties with many commuters out (or in) can look very different on each measure.', 'Caiff GYC a chyflog eu mesur lle mae pobl yn gweithio; caiff incwm aelwydydd ei fesur lle mae pobl yn byw. Gall siroedd â llawer o gymudwyr yn mynd allan (neu’n dod i mewn) edrych yn wahanol iawn ar bob mesur.')}</li>
 <li>${t('GVA figures are in cash terms (not adjusted for inflation). 2023 figures are provisional.', 'Mae ffigurau GYC mewn termau arian parod (heb eu haddasu ar gyfer chwyddiant). Mae ffigurau 2023 yn rhai dros dro.')}</li>
@@ -529,6 +546,7 @@ ${chart({ lang, title: t(`Employment rate in ${n}, ages 16–64`, `Cyfradd cyflo
     body, dataset: true, crumbs: [['counties', t('Counties', 'Siroedd')]],
   };
 }
+const ordWord = (r, lang) => (lang === 'cy' ? (r === 1 ? 'yr uchaf yng Nghymru' : r === 22 ? 'yr isaf yng Nghymru' : `${r} o 22 (1 = uchaf)`) : r === 1 ? 'the highest in Wales' : r === 22 ? 'the lowest in Wales' : `${ord(r)} highest of 22`);
 const ord = (n) => n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th');
 
 // ============================================================ SOURCES & ABOUT

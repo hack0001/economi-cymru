@@ -14,15 +14,15 @@ export const slugify = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 export const T = (lang) => (en, cy) => (lang === 'cy' ? cy : en);
 
 // ---------- Components ----------
-export function stat(k, v, s) { return `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || ''}</div></div>`; }
+export function stat(k, v, s) { return `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`; }
 
 let chartN = 0;
 export function chart({ title, sub, cfg, source, table, views, legend = true, lang }) {
   const id = 'c' + ++chartN;
   const t = T(lang);
-  const seg = views ? `<div class="controls"><div class="seg" role="group">${views.map((v, i) => `<button type="button" aria-pressed="${i === 0}">${esc(v)}</button>`).join('')}</div></div>` : '';
-  const tbl = table ? `<details><summary>${t('Show the data table', 'Dangos y tabl data')}</summary>${table}</details>` : '';
-  return `<figure class="chart" id="${id}"><figcaption>${title}</figcaption>${sub ? `<div class="sub">${sub}</div>` : ''}${seg}${legend ? '<div class="legend"></div>' : ''}
+  const seg = views ? `<div class="seg" role="group" aria-label="${t('Chart view', 'Golwg siart')}">${views.map((v, i) => `<button type="button" aria-pressed="${i === 0}">${esc(v)}</button>`).join('')}</div>` : '';
+  const tbl = table ? `<details><summary>${t('Show the data', 'Dangos y data')}</summary>${table}</details>` : '';
+  return `<figure class="chart" id="${id}"><div class="chart-head"><div><figcaption>${title}</figcaption>${sub ? `<div class="sub">${sub}</div>` : ''}</div>${seg}</div>${legend ? '<div class="legend"></div>' : ''}
 <div class="chart-box"></div><script type="application/json" class="cfg">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>
 <div class="src">${t('Source', 'Ffynhonnell')}: ${source}</div>${tbl}</figure>`;
 }

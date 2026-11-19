@@ -55,7 +55,9 @@
     const old = this.box.querySelector('svg'); if (old) old.remove();
     if (d.type === 'hbar') return this.hbar(d, W);
     const H = d.height || Math.round(Math.min(420, Math.max(260, W * 0.5)));
-    const m = { t: 14, r: 14, b: 34, l: 56 };
+    const m = { t: 16, r: 16, b: 36, l: 56 };
+    const direct = d.type === 'line' && d.series.length > 1 && d.series.length <= 6 && W > 640 && !d.noDirect;
+    if (direct) m.r = Math.min(170, 12 + 7 * Math.max(...d.series.map((s) => String(s.name).length)));
     const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': d.aria || '' });
     this.box.insertBefore(svg, this.tip);
     const vis = d.series.map((s, i) => ({ ...s, i })).filter((s) => !this.hidden.has(s.i));
@@ -69,12 +71,13 @@
     }
     if (d.min != null) lo = d.min; if (d.max != null) hi = d.max;
     const ticks = niceTicks(lo, hi, 5); lo = ticks[0]; hi = ticks[ticks.length - 1];
-    const tl = Math.max(...ticks.map((t) => fmt(t, d.fmt).length)); m.l = Math.max(40, tl * 7.2 + 12);
+    const tf = ticks.every((t) => Number.isInteger(t)) ? Object.assign({}, d.fmt, { dec: 0 }) : d.fmt;
+    const tl = Math.max(...ticks.map((t) => fmt(t, tf).length)); m.l = Math.max(40, tl * 7.2 + 12);
     const iw = W - m.l - m.r, ih = H - m.t - m.b;
     const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
     const band = iw / n, x = (k) => m.l + band * k + band / 2;
     const g = el('g', { class: 'grid' }, svg);
-    ticks.forEach((t) => { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); const tx = el('text', { x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end' }, svg); tx.textContent = fmt(t, d.fmt); });
+    ticks.forEach((t) => { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); const tx = el('text', { x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end' }, svg); tx.textContent = fmt(t, tf); });
     if (lo < 0) el('line', { class: 'zero', x1: m.l, x2: W - m.r, y1: y(0), y2: y(0) }, svg);
     const every = Math.ceil(n / Math.floor(iw / (Math.max(...L.map((l) => String(l).length)) * 7 + 12)));
     L.forEach((l, k) => { if (k !== n - 1 && (k % every || n - 1 - k < every * 0.8)) return; const tx = el('text', { x: x(k), y: H - 12, 'text-anchor': 'middle' }, svg); tx.textContent = l; });
@@ -83,12 +86,17 @@
       vis.forEach((s) => {
         let dstr = '', pen = false;
         s.values.forEach((v, k) => { if (v == null) { pen = false; return; } dstr += (pen ? 'L' : 'M') + x(k).toFixed(1) + ' ' + y(v).toFixed(1); pen = true; });
-        el('path', { d: dstr, fill: 'none', stroke: color(s.i, s.color), 'stroke-width': s.width || 2.5, 'stroke-linejoin': 'round', 'stroke-dasharray': s.dash || '' }, svg);
-        if (n <= 30) s.values.forEach((v, k) => { if (v != null && (k === n - 1)) el('circle', { cx: x(k), cy: y(v), r: 3.5, fill: color(s.i, s.color) }, svg); });
+        el('path', { d: dstr, fill: 'none', stroke: color(s.i, s.color), 'stroke-width': s.width || 2.25, 'stroke-linejoin': 'round', 'stroke-dasharray': s.dash || '' }, svg);
+        const lv = s.values[n - 1]; if (lv != null) el('circle', { cx: x(n - 1), cy: y(lv), r: 3.5, fill: color(s.i, s.color), stroke: css('--paper'), 'stroke-width': 1.5 }, svg);
       });
+      if (direct) {
+        const labs = vis.map((s) => ({ s, y: y(s.values[n - 1] ?? s.values.filter((v) => v != null).pop()) })).sort((a, b) => a.y - b.y);
+        for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 15) labs[i].y = labs[i - 1].y + 15;
+        labs.forEach((l) => { const tx = el('text', { x: x(n - 1) + 9, y: l.y + 4, class: 'lab', style: 'fill:' + color(l.s.i, l.s.color) }, svg); tx.textContent = l.s.name; });
+      }
     } else if (d.type === 'bar') {
       const gw = band * 0.78, bw = gw / Math.max(1, vis.length); const base = lo > 0 ? lo : hi < 0 ? hi : 0;
-      vis.forEach((s, j) => s.values.forEach((v, k) => { if (v == null) return; const x0 = m.l + band * k + (band - gw) / 2 + j * bw; el('rect', { x: x0, width: Math.max(1, bw - 1), y: Math.min(y(v), y(base)), height: Math.abs(y(v) - y(base)), rx: 2, fill: color(s.i, (s.colors && s.colors[k]) || s.color) }, svg); }));
+      vis.forEach((s, j) => s.values.forEach((v, k) => { if (v == null) return; const x0 = m.l + band * k + (band - gw) / 2 + j * bw; el('rect', { x: x0, width: Math.max(1, bw - 1), y: Math.min(y(v), y(base)), height: Math.abs(y(v) - y(base)), rx: 1, fill: color(s.i, (s.colors && s.colors[k]) || s.color) }, svg); }));
     } else if (d.type === 'stack') {
       const bw = band * 0.78;
       for (let k = 0; k < n; k++) { let p = 0, q = 0; vis.forEach((s) => { const v = s.values[k] || 0; const b0 = v >= 0 ? p : q, b1 = b0 + v; v >= 0 ? (p = b1) : (q = b1); el('rect', { x: m.l + band * k + (band - bw) / 2, width: bw, y: Math.min(y(b0), y(b1)), height: Math.abs(y(b1) - y(b0)), fill: color(s.i, s.color) }, svg); }); }
@@ -112,7 +120,7 @@
   Chart.prototype.hbar = function (d, W) {
     const s = d.series[0]; const rows = d.labels.map((l, k) => ({ l, v: s.values[k], c: (s.colors && s.colors[k]) || null, href: d.links && d.links[k] }));
     if (d.sort !== false) rows.sort((a, b) => (b.v ?? -Infinity) - (a.v ?? -Infinity));
-    const rh = 26, maxCh = Math.max(...rows.map((r) => r.l.length)), labW = Math.min(W * 0.42, maxCh * 6.6 + 10), valW = 74, fitCh = Math.floor((labW - 10) / 6.6);
+    const rh = 30, maxCh = Math.max(...rows.map((r) => r.l.length)), labW = Math.min(W * 0.42, maxCh * 6.6 + 10), valW = 74, fitCh = Math.floor((labW - 10) / 6.6);
     rows.forEach((r) => { r.full = r.l; if (r.l.length > fitCh) r.l = r.l.slice(0, fitCh - 1).trimEnd() + '…'; });
     const H = rows.length * rh + 8; const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': d.aria || '' }); this.box.insertBefore(svg, this.tip);
     const vals = rows.map((r) => r.v).filter((v) => v != null); const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals); const iw = W - labW - valW;
@@ -122,7 +130,7 @@
       const t = el('text', { x: labW - 8, y: yy + rh / 2 + 4, 'text-anchor': 'end' }, parent); t.textContent = r.l; if (r.full !== r.l) { const tt = el('title', {}, t); tt.textContent = r.full; }
       if (r.v == null) { const na = el('text', { x: labW + 4, y: yy + rh / 2 + 4 }, parent); na.textContent = d.naLabel || 'n/a'; return; }
       const hlRow = d.highlight && d.highlight.includes(r.full);
-      el('rect', { x: Math.min(x(0), x(r.v)), y: yy + 4, width: Math.max(1, Math.abs(x(r.v) - x(0))), height: rh - 8, rx: 3, fill: hlRow ? css('--c5') : color(0, r.c || s.color) }, parent);
+      el('rect', { x: Math.min(x(0), x(r.v)), y: yy + 4, width: Math.max(1, Math.abs(x(r.v) - x(0))), height: rh - 12, rx: 1, fill: hlRow ? css('--c5') : color(0, r.c || s.color) }, parent);
       const vt = el('text', { x: Math.max(x(0), x(r.v)) + 6, y: yy + rh / 2 + 4, style: 'fill:' + css('--ink') + ';font-weight:600' }, parent); vt.textContent = fmt(r.v, d.fmt);
       if (hlRow) t.setAttribute('style', 'font-weight:700;fill:' + css('--ink'));
     });
@@ -135,12 +143,12 @@
     const draw = () => {
       const m = cfg.metrics[sel ? +sel.value : 0]; const vals = Object.values(m.values).filter((v) => v != null);
       const lo = Math.min(...vals), hi = Math.max(...vals);
-      const c0 = [230, 242, 236], c1 = m.invert ? [181, 23, 43] : [10, 107, 60];
+      const c0 = [236, 242, 239], c1 = m.invert ? [168, 58, 50] : [14, 92, 74];
       const col = (v) => { if (v == null) return css('--line'); const t = (v - lo) / (hi - lo || 1); return `rgb(${c0.map((a, i) => Math.round(a + (c1[i] - a) * t)).join(',')})`; };
-      const S = 76, cols = 7, rows = 6; const svg = el('svg', { viewBox: `0 0 ${cols * S} ${rows * S}`, role: 'img', 'aria-label': m.label });
+      const S = 80, cols = 7, rows = 6; const svg = el('svg', { viewBox: `0 0 ${cols * S} ${rows * S}`, role: 'img', 'aria-label': m.label });
       cfg.tiles.forEach((t) => {
         const v = m.values[t.slug]; const a = el('a', { href: t.href }, svg); const tt = el('title', {}, a); tt.textContent = `${t.name}: ${fmt(v, m.fmt)}`;
-        el('rect', { x: t.col * S + 2, y: t.row * S + 2, width: S - 4, height: S - 4, rx: 8, fill: col(v) }, a);
+        el('rect', { x: t.col * S + 2, y: t.row * S + 2, width: S - 4, height: S - 4, rx: 3, fill: col(v) }, a);
         const dark = v != null && (v - lo) / (hi - lo || 1) > 0.55;
         const words = t.short.split(' '); words.forEach((w, i) => { const tx = el('text', { x: t.col * S + S / 2, y: t.row * S + S / 2 - 6 + i * 12 - (words.length - 1) * 6, 'text-anchor': 'middle', fill: dark ? '#fff' : '#16201b' }, a); tx.textContent = w; });
         const vt = el('text', { x: t.col * S + S / 2, y: t.row * S + S / 2 + 18 + (words.length - 1) * 6, 'text-anchor': 'middle', fill: dark ? '#fff' : '#16201b', style: 'font-weight:400' }, a); vt.textContent = fmt(v, Object.assign({}, m.fmt, { compactTile: true }));
@@ -148,9 +156,10 @@
       holder.innerHTML = ''; holder.appendChild(svg);
       if (side) {
         const sorted = cfg.tiles.map((t) => ({ n: t.name, v: m.values[t.slug], h: t.href })).filter((r) => r.v != null).sort((a, b) => b.v - a.v);
+        const li = (r) => `<li><a href="${r.h}">${r.n}</a><span>${fmt(r.v, m.fmt)}</span></li>`;
         side.innerHTML = `<div class="scale" style="background:linear-gradient(90deg,${col(lo)},${col(hi)})"></div><div class="scale-labels"><span>${fmt(lo, m.fmt)}</span><span>${fmt(hi, m.fmt)}</span></div>
-          <p class="meta" style="margin-top:12px">${cfg.highest}</p><ol style="padding-left:20px;margin:4px 0">${sorted.slice(0, 3).map((r) => `<li><a href="${r.h}">${r.n}</a> – ${fmt(r.v, m.fmt)}</li>`).join('')}</ol>
-          <p class="meta">${cfg.lowest}</p><ol style="padding-left:20px;margin:4px 0">${sorted.slice(-3).reverse().map((r) => `<li><a href="${r.h}">${r.n}</a> – ${fmt(r.v, m.fmt)}</li>`).join('')}</ol>
+          <h3>${cfg.highest}</h3><ol>${sorted.slice(0, 3).map(li).join('')}</ol>
+          <h3>${cfg.lowest}</h3><ol>${sorted.slice(-3).reverse().map(li).join('')}</ol>
           ${m.note ? `<p class="src">${m.note}</p>` : ''}`;
       }
     };

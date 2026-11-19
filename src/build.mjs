@@ -25,6 +25,7 @@ const asset = (rel) => {
 };
 const CSS = asset('css/site.css');
 const JS = asset('js/charts.js');
+cpSync(path.join(root, 'static', 'fonts'), path.join(out, 'fonts'), { recursive: true });
 for (const f of ['favicon.svg', 'og-en.png', 'og-cy.png', 'robots.txt', '_headers', '_redirects']) if (existsSync(path.join(root, 'static', f))) cpSync(path.join(root, 'static', f), path.join(out, f));
 
 const pages = []; // for sitemap
@@ -59,8 +60,10 @@ function layout({ lang, key, page, enPath, cyPath, county }) {
 <meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.desc)}">
 <meta property="og:url" content="${url}"><meta property="og:image" content="${og}"><meta property="og:locale" content="${lang === 'cy' ? 'cy_GB' : 'en_GB'}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0a6b3c">
+<meta name="theme-color" content="#14212b">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/newsreader-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${CSS}">
 <script defer src="${JS}"></script>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`).join('\n')}
@@ -74,13 +77,13 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(
 <a class="lang" href="${otherPath}" hreflang="${lang === 'cy' ? 'en' : 'cy'}" lang="${lang === 'cy' ? 'en' : 'cy'}">${lang === 'cy' ? 'English' : 'Cymraeg'}</a>
 </div></header>
 <main id="main">
-${page.noWrap ? page.body : `<div class="wrap">${crumbHtml}<h1>${esc(h1)}</h1>${page.body}<p class="meta" style="margin-top:40px">${t('Last updated', 'Diweddarwyd ddiwethaf')}: 18 ${t('November', 'Tachwedd')} 2026 · <a href="${ROUTES.sources[lang === 'cy' ? 1 : 0]}">${t('All sources and methods', 'Pob ffynhonnell a dull')}</a></p></div>`}
+${page.noWrap ? page.body : `<div class="wrap">${crumbHtml}<h1>${esc(h1)}</h1>${page.body}<p class="meta updated">${t('Figures last checked', 'Gwiriwyd y ffigurau ddiwethaf')} 18 ${t('November', 'Tachwedd')} 2026. <a href="${ROUTES.sources[lang === 'cy' ? 1 : 0]}">${t('All sources and methods', 'Pob ffynhonnell a dull')}</a></p></div>`}
 </main>
 <footer class="site"><div class="wrap cols">
-<div><strong>${esc(SITE_NAME[lang])}</strong><br>${esc(TAGLINE[lang])}</div>
+<div><span class="f-brand">${esc(SITE_NAME[lang])}</span><span class="f-small">${esc(TAGLINE[lang])}</span></div>
 <div>${['funding', 'finances', 'economy', 'trade'].map((k) => `<a href="${ROUTES[k][lang === 'cy' ? 1 : 0]}">${NAV_LABEL[k][lang === 'cy' ? 1 : 0]}</a>`).join('<br>')}</div>
 <div>${['counciltax', 'jobs', 'incomes', 'counties'].map((k) => `<a href="${ROUTES[k][lang === 'cy' ? 1 : 0]}">${NAV_LABEL[k][lang === 'cy' ? 1 : 0]}</a>`).join('<br>')}</div>
-<div><a href="${ROUTES.sources[lang === 'cy' ? 1 : 0]}">${NAV_LABEL.sources[lang === 'cy' ? 1 : 0]}</a><br><a href="${ROUTES.about[lang === 'cy' ? 1 : 0]}">${NAV_LABEL.about[lang === 'cy' ? 1 : 0]}</a><br><span>${t('Contains public sector information licensed under the Open Government Licence v3.0.', 'Yn cynnwys gwybodaeth sector cyhoeddus a drwyddedir o dan y Drwydded Llywodraeth Agored v3.0.')}</span></div>
+<div><a href="${ROUTES.sources[lang === 'cy' ? 1 : 0]}">${NAV_LABEL.sources[lang === 'cy' ? 1 : 0]}</a><br><a href="${ROUTES.about[lang === 'cy' ? 1 : 0]}">${NAV_LABEL.about[lang === 'cy' ? 1 : 0]}</a><br><span class="f-small" style="display:block;margin-top:8px">${t('Contains public sector information licensed under the Open Government Licence v3.0.', 'Yn cynnwys gwybodaeth sector cyhoeddus a drwyddedir o dan y Drwydded Llywodraeth Agored v3.0.')}</span></div>
 </div></footer>
 </body></html>`;
   const file = path.join(out, selfPath, 'index.html');
