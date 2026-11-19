@@ -1,5 +1,9 @@
-// Site-wide settings. Change SITE_URL to your real domain before deploying (no trailing slash).
-export const SITE_URL = process.env.SITE_URL || 'https://economi.cymru';
+// Site-wide settings.
+// SITE_URL is the public address of the site (no trailing slash). It is only used to build the
+// canonical links, Welsh/English alternate links and sitemap that Google reads.
+// Put the address Cloudflare gives you here (e.g. https://economi-cymru.<you>.workers.dev),
+// and change it again when you buy a domain.
+export const SITE_URL = process.env.SITE_URL || 'https://economi-cymru.workers.dev';
 export const SITE_NAME = { en: 'Wales Economy Explained', cy: 'Economi Cymru wedi’i Egluro' };
 export const TAGLINE = {
   en: 'Facts and official data on the economy of Wales – no spin.',

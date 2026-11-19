@@ -8,14 +8,13 @@ trade, council tax, jobs, incomes, and a profile page for each of the 22 local a
 - **Charts** are a ~10 KB vanilla-JS SVG kit (`static/js/charts.js`): line, bar, horizontal bar, stacked, a tile map of the 22 counties, sortable tables and a Barnett calculator. Every chart also has an HTML data table, so the numbers can be crawled and read without JavaScript.
 - **SEO:** unique titles and descriptions, canonical URLs, `hreflang` en-GB/cy-GB pairs, Dataset and Breadcrumb JSON-LD, sitemap with language alternates, Open Graph images, fast static pages.
 
-## Deploy on Cloudflare Pages
+## Deploy on Cloudflare
 
 1. Push this repo to GitHub.
-2. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → pick the repo.
-3. Build settings: **Framework preset** None · **Build command** `npm run build` · **Build output directory** `dist`.
-4. Environment variable: `SITE_URL` = your domain with no trailing slash (for example `https://economi.cymru`). It is used for canonical URLs, hreflang and the sitemap.
-5. Add your custom domain under the project’s **Custom domains** tab.
-6. In Google Search Console, add the domain and submit `https://YOUR-DOMAIN/sitemap.xml`.
+2. Cloudflare dashboard → Workers & Pages → Create → Import a repository → pick `economi-cymru`.
+3. Leave **Build command** blank (or `npm run build`) and **Deploy command** as `npx wrangler deploy`. `wrangler.jsonc` builds the site and serves the `dist` folder, so there is no output directory to set.
+4. After the first deploy, copy the `…workers.dev` address Cloudflare shows and put it in `SITE_URL` in `src/config.mjs`, then commit and push. Do the same when you get a custom domain.
+5. In Google Search Console, add the site and submit `/sitemap.xml`.
 
 `static/_headers` sets long-lived caching for the hashed files in `/assets/` and security headers on every page.
 
