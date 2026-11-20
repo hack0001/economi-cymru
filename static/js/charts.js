@@ -36,6 +36,7 @@
       }));
     }
     new ResizeObserver(() => this.render()).observe(box);
+    document.addEventListener('themechange', () => this.render());
   }
   Chart.prototype.data = function () { const c = this.cfg; return c.views ? Object.assign({}, c, c.views[this.view]) : c; };
   Chart.prototype.renderLegend = function (d) {
@@ -143,7 +144,8 @@
     const draw = () => {
       const m = cfg.metrics[sel ? +sel.value : 0]; const vals = Object.values(m.values).filter((v) => v != null);
       const lo = Math.min(...vals), hi = Math.max(...vals);
-      const c0 = [236, 242, 239], c1 = m.invert ? [168, 58, 50] : [14, 92, 74];
+      const hex = (h) => { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+      const c0 = hex(css('--wash')), c1 = hex(m.invert ? css('--c5') : css('--accent'));
       const col = (v) => { if (v == null) return css('--line'); const t = (v - lo) / (hi - lo || 1); return `rgb(${c0.map((a, i) => Math.round(a + (c1[i] - a) * t)).join(',')})`; };
       const S = 80, cols = 7, rows = 6; const svg = el('svg', { viewBox: `0 0 ${cols * S} ${rows * S}`, role: 'img', 'aria-label': m.label });
       cfg.tiles.forEach((t) => {
@@ -164,6 +166,7 @@
       }
     };
     if (sel) sel.addEventListener('change', draw);
+    document.addEventListener('themechange', draw);
     draw();
     window.addEventListener('resize', () => {}, { passive: true });
   }

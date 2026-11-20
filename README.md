@@ -25,12 +25,19 @@ Each file in `raw/` is an extract from one official dataset. Its first line name
 | File | Source |
 |---|---|
 | `raw/fiscal.txt` | ONS Country and regional public sector finances (annual, usually spring/summer) |
-| `raw/gva_la.txt`, `raw/gva_industry.txt` | ONS Regional GVA via StatsWales (annual, spring) |
+| `raw/gva_la_2024.txt`, `raw/pop_la.txt`, `raw/gva_industry.txt` | ONS regional GDP/GVA by local authority and industry (annual, September). `raw/gva_la.txt` is the older StatsWales extract, kept for reference |
+| `raw/bres.txt` | ONS Business Register and Employment Survey via Nomis (annual, autumn) |
+| `raw/business_counts.txt` | ONS UK Business Counts, local units by size, via Nomis (annual, autumn) |
+| `raw/employers.txt` | Named employers: one line each, with sources. Add a company by adding a line |
 | `raw/council_tax.txt` | Welsh Government council tax levels (annual, March) |
 | `raw/aps.txt` | ONS Annual Population Survey via StatsWales (quarterly) |
 | `raw/trade.txt` | HMRC Regional Trade Statistics, `api.uktradeinfo.com` (quarterly) |
 | `raw/income.txt` | ONS ASHE and regional GDHI via StatsWales (annual) |
 | `raw/budget.txt` | Welsh Government Final Budget, HMRC, IFS |
+
+## Colour schemes
+
+`static/js/theme.js` adds a temporary picker (bottom right) with four schemes defined in `static/css/site.css` under `html[data-theme=...]`. Once you have chosen, delete the picker code in `theme.js` (or the script tag in `src/build.mjs`) and move the chosen variables into `:root`.
 
 ## Local preview
 

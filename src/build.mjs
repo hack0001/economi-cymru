@@ -25,6 +25,7 @@ const asset = (rel) => {
 };
 const CSS = asset('css/site.css');
 const JS = asset('js/charts.js');
+const THEME = asset('js/theme.js');
 cpSync(path.join(root, 'static', 'fonts'), path.join(out, 'fonts'), { recursive: true });
 for (const f of ['favicon.svg', 'og-en.png', 'og-cy.png', 'robots.txt', '_headers', '_redirects']) if (existsSync(path.join(root, 'static', f))) cpSync(path.join(root, 'static', f), path.join(out, f));
 
@@ -65,6 +66,7 @@ function layout({ lang, key, page, enPath, cyPath, county }) {
 <link rel="preload" href="/fonts/newsreader-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${CSS}">
+<script src="${THEME}"></script>
 <script defer src="${JS}"></script>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`).join('\n')}
 </head>
@@ -92,7 +94,7 @@ ${page.noWrap ? page.body : `<div class="wrap">${crumbHtml}<h1>${esc(h1)}</h1>${
   pages.push({ path: selfPath, en: enPath, cy: cyPath });
 }
 
-const simple = { home: P.home, funding: P.funding, finances: P.finances, economy: P.economy, trade: P.trade, counciltax: P.counciltax, jobs: P.jobs, incomes: P.incomes, counties: P.counties, sources: P.sources, about: P.about };
+const simple = { home: P.home, funding: P.funding, finances: P.finances, economy: P.economy, business: P.business, trade: P.trade, counciltax: P.counciltax, jobs: P.jobs, incomes: P.incomes, counties: P.counties, sources: P.sources, about: P.about };
 for (const [key, fn] of Object.entries(simple)) {
   for (const lang of ['en', 'cy']) layout({ lang, key, page: fn(lang), enPath: ROUTES[key][0], cyPath: ROUTES[key][1] });
 }

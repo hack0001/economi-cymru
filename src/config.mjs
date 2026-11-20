@@ -19,13 +19,14 @@ export const ROUTES = {
   economy: ['/economy/', '/cy/economi/'],
   trade: ['/trade/', '/cy/masnach/'],
   counciltax: ['/council-tax/', '/cy/treth-gyngor/'],
+  business: ['/business/', '/cy/busnes/'],
   jobs: ['/jobs/', '/cy/swyddi/'],
   incomes: ['/incomes/', '/cy/incwm/'],
   counties: ['/counties/', '/cy/siroedd/'],
   sources: ['/sources/', '/cy/ffynonellau/'],
   about: ['/about/', '/cy/amdanom/'],
 };
-export const NAV = ['funding', 'finances', 'economy', 'trade', 'counciltax', 'jobs', 'incomes', 'counties'];
+export const NAV = ['funding', 'finances', 'economy', 'business', 'trade', 'counciltax', 'jobs', 'incomes', 'counties'];
 export const NAV_LABEL = {
   home: ['Home', 'Hafan'],
   funding: ['Budget & Barnett', 'Cyllideb a Barnett'],
@@ -33,6 +34,7 @@ export const NAV_LABEL = {
   economy: ['Economy', 'Economi'],
   trade: ['Trade', 'Masnach'],
   counciltax: ['Council tax', 'Treth gyngor'],
+  business: ['Business', 'Busnes'],
   jobs: ['Jobs', 'Swyddi'],
   incomes: ['Incomes', 'Incwm'],
   counties: ['Counties', 'Siroedd'],

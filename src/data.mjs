@@ -38,14 +38,33 @@ export const LAS = [
 const byName = Object.fromEntries(LAS.map((l) => [l.en, l]));
 byName['Denbigshire'] = byName['Denbighshire']; // spelling used in one StatsWales table
 
-// ---------- GVA by local authority (1998-2023) ----------
-const GVA_YEARS = range(1998, 2023);
-const gvaLA = {};
-for (const line of raw('gva_la.txt')) {
+// ---------- GVA and population by local authority (ONS, Sept 2026: 1998-2024) ----------
+const GVA_YEARS = range(1998, 2024);
+const popRaw = {}, gvaRaw = {}, laInd = {};
+for (const line of raw('pop_la.txt')) { if (line.startsWith('#')) continue; const [k, v] = line.split('|'); popRaw[k] = nums(v); }
+let inInd = false;
+for (const line of raw('gva_la_2024.txt')) {
+  if (line.startsWith('#INDUSTRY')) { inInd = true; continue; }
   if (line.startsWith('#')) continue;
-  const [area, m, ph, idx] = line.split('|');
-  gvaLA[area] = { m: nums(m), ph: nums(ph), idx: nums(idx) };
+  const p = line.split('|');
+  if (inInd) laInd[p[0]] = { v: nums(p[1]), t23: Number(p[2]), real: nums(p[3]) };
+  else gvaRaw[p[0]] = nums(p[1]);
 }
+const IND_CODES = ['Total', 'AB', 'C', 'DE', 'F', 'G', 'H', 'I', 'J', 'K', 'L', '68IMP', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
+const ukPH = popRaw.UKG.map((g, i) => Math.round((g * 1e6) / popRaw.UKP[i]));
+const mk = (m, pop) => { const ph = m.map((g, i) => Math.round((g * 1e6) / pop[i])); return { m, ph, idx: ph.map((v, i) => +((v / ukPH[i]) * 100).toFixed(1)), pop }; };
+const gvaLA = { 'UK excluding Extra-Regio': { m: popRaw.UKG, ph: ukPH, idx: ukPH.map(() => 100), pop: popRaw.UKP }, Wales: mk(popRaw.WG, popRaw.WP) };
+for (const k of Object.keys(gvaRaw)) gvaLA[k] = mk(gvaRaw[k], popRaw[k]);
+const sumArr = (arrs) => arrs[0].map((_, i) => arrs.reduce((a, b) => a + b[i], 0));
+
+for (const r of ['North Wales', 'Mid Wales', 'South West Wales', 'South East Wales']) { const ls = LAS.filter((l) => l.region === r); gvaLA[r] = mk(sumArr(ls.map((l) => gvaRaw[l.en])), sumArr(ls.map((l) => popRaw[l.en]))); }
+
+// ---------- Business structure ----------
+const SECTIONS = 'A B C D E F G H I J K L M N O P Q R S'.split(' ');
+const bres = {}, ukbc = {};
+for (const line of raw('bres.txt')) { if (line.startsWith('#')) continue; const [a, v, t15] = line.split('|'); const n = nums(v); bres[a] = { s: Object.fromEntries(SECTIONS.map((k, i) => [k, n[i]])), tot: n[19], tot15: Number(t15) }; }
+for (const line of raw('business_counts.txt')) { if (line.startsWith('#')) continue; const [a, v] = line.split('|'); const n = nums(v); ukbc[a] = { total: n[0], b: n.slice(1, 10), priv: n[10], pub: n[11] }; }
+const employers = raw('employers.txt').filter((l) => !l.startsWith('#')).map((l) => { const p = l.split('|'); return { slug: p[0], name: p[1], ch: p[2], county: p[3], sector: { en: p[4], cy: p[5] }, wales: { en: p[6], cy: p[7] }, figs: { en: p[8], cy: p[9] }, src: p[10].split(' ') }; });
 
 // ---------- GVA by industry ----------
 const industry = { W: {}, UK: {} };
@@ -146,17 +165,18 @@ const last = (a) => a[a.length - 1];
 const idxOf = (arr, y) => arr.indexOf(y);
 export function laProfile(la) {
   const g = gvaLA[la.en];
-  const pop2023 = Math.round((last(g.m) * 1e6) / last(g.ph));
+  const pop2024 = last(g.pop);
   const a = aps[la.en];
   const c = ct[la.en];
   return {
     ...la,
     gva: { years: GVA_YEARS, m: g.m, ph: g.ph, idx: g.idx },
-    pop2023,
+    pop2024,
     ct: { years: CT_YEARS, v: c, comp: ctComp[la.en] },
     aps: { periods: APS_PERIODS, E: a.E, I: a.I, U: a.U, Ulow: a.Ulow, EL: a.EL },
     earn: earn[la.en],
     gdhi: gdhi[la.en],
+    ind: laInd[la.en], bres: bres[la.en], ukbc: ukbc[la.en], employers: employers.filter((e) => e.county === la.slug),
   };
 }
 
@@ -188,11 +208,18 @@ export const wales = {
   aps: { periods: APS_PERIODS, ...aps['Wales'] }, apsUK: aps['United Kingdom'],
   fiscal: { years: FISCAL_YEARS, ph: fiscal.ph, revTotal, expTotal, nfbTotal, ukShare, aboveShare, rev: fiscal.rev, exp: fiscal.exp },
   trade, earn: { years: EARN_YEARS, data: earn }, gdhi: { years: GDHI_YEARS, data: gdhi }, budget,
+  bres: bres['Wales'], ukbc: ukbc['Wales'], employers,
 };
+export { SECTIONS, IND_CODES };
 
 export const SOURCES = {
-  gvaLA: { en: 'ONS Regional economic activity by GDP/GVA (balanced), via StatsWales: GVA by Welsh local authority and year', url: 'https://stats.gov.wales/en-GB/58788eaa-6713-4ced-abc2-4b9c3773002a' },
-  gvaInd: { en: 'ONS Regional Accounts, via StatsWales: GVA by industry (SIC2007), area and year', url: 'https://stats.gov.wales/en-GB/8590163a-acc3-428d-b27f-aec45d408372' },
+  gvaLA: { en: 'ONS, Regional gross domestic product: local authorities, 1998 to 2024 (September 2026)', url: 'https://www.ons.gov.uk/economy/grossdomesticproductgdp/datasets/regionalgrossdomesticproductlocalauthorities' },
+  gvaLAind: { en: 'ONS, Regional gross value added (balanced) by industry: local authorities, Wales (September 2026)', url: 'https://www.ons.gov.uk/economy/grossdomesticproductgdp/datasets/regionalgrossvalueaddedbalancedbyindustrylocalauthoritiesbyitl1region' },
+  bres: { en: 'ONS Business Register and Employment Survey 2024, via Nomis', url: 'https://www.nomisweb.co.uk/datasets/newbres6pub' },
+  bresWG: { en: 'Welsh Government, Business Register and Employment Survey: 2024', url: 'https://www.gov.wales/business-register-and-employment-survey-2024-html' },
+  ukbc: { en: 'ONS UK Business Counts: local units by employment size band, 2026, via Nomis', url: 'https://www.nomisweb.co.uk/datasets/idbrlu' },
+  ch: { en: 'Companies House, company filing histories', url: 'https://find-and-update.company-information.service.gov.uk/' },
+  gvaInd: { en: 'ONS, Regional gross value added (balanced) by industry: all ITL regions (September 2026)', url: 'https://www.ons.gov.uk/economy/grossvalueaddedgva/datasets/nominalandrealregionalgrossvalueaddedbalancedbyindustry' },
   ct: { en: 'Welsh Government, Composition of average band D council tax by billing authority (StatsWales)', url: 'https://stats.gov.wales/en-GB/3ca971eb-7d9b-4b79-89fa-6d7f77431aad' },
   ctRelease: { en: 'Welsh Government, Council tax levels: April 2026 to March 2027', url: 'https://www.gov.wales/council-tax-levels-april-2026-march-2027-html' },
   aps: { en: 'ONS Annual Population Survey, via StatsWales: summary of economic activity', url: 'https://stats.gov.wales/en-GB/3a324dc0-3594-447f-9b4a-1a08bb923bf8' },
