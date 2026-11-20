@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE_URL, SITE_NAME, TAGLINE, ROUTES, NAV, NAV_LABEL, UPDATED } from './config.mjs';
 import { profiles, SOURCES } from './data.mjs';
 import { esc, T, slugify } from './lib.mjs';
+import * as CP from './councilpages.mjs';
 import * as P from './pages.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -84,7 +85,7 @@ ${page.noWrap ? page.body : `<div class="wrap">${crumbHtml}<h1>${esc(h1)}</h1>${
 <footer class="site"><div class="wrap cols">
 <div><span class="f-brand">${esc(SITE_NAME[lang])}</span><span class="f-small">${esc(TAGLINE[lang])}</span></div>
 <div>${['funding', 'finances', 'economy', 'trade'].map((k) => `<a href="${ROUTES[k][lang === 'cy' ? 1 : 0]}">${NAV_LABEL[k][lang === 'cy' ? 1 : 0]}</a>`).join('<br>')}</div>
-<div>${['counciltax', 'jobs', 'incomes', 'counties'].map((k) => `<a href="${ROUTES[k][lang === 'cy' ? 1 : 0]}">${NAV_LABEL[k][lang === 'cy' ? 1 : 0]}</a>`).join('<br>')}</div>
+<div>${['councils', 'counciltax', 'jobs', 'incomes', 'counties'].map((k) => `<a href="${ROUTES[k][lang === 'cy' ? 1 : 0]}">${NAV_LABEL[k][lang === 'cy' ? 1 : 0]}</a>`).join('<br>')}</div>
 <div><a href="${ROUTES.sources[lang === 'cy' ? 1 : 0]}">${NAV_LABEL.sources[lang === 'cy' ? 1 : 0]}</a><br><a href="${ROUTES.about[lang === 'cy' ? 1 : 0]}">${NAV_LABEL.about[lang === 'cy' ? 1 : 0]}</a><br><span class="f-small" style="display:block;margin-top:8px">${t('Contains public sector information licensed under the Open Government Licence v3.0.', 'Yn cynnwys gwybodaeth sector cyhoeddus a drwyddedir o dan y Drwydded Llywodraeth Agored v3.0.')}</span></div>
 </div></footer>
 </body></html>`;
@@ -94,7 +95,7 @@ ${page.noWrap ? page.body : `<div class="wrap">${crumbHtml}<h1>${esc(h1)}</h1>${
   pages.push({ path: selfPath, en: enPath, cy: cyPath });
 }
 
-const simple = { home: P.home, funding: P.funding, finances: P.finances, economy: P.economy, business: P.business, trade: P.trade, counciltax: P.counciltax, jobs: P.jobs, incomes: P.incomes, counties: P.counties, sources: P.sources, about: P.about };
+const simple = { home: P.home, funding: P.funding, finances: P.finances, economy: P.economy, business: P.business, trade: P.trade, counciltax: P.counciltax, councils: CP.councils, jobs: P.jobs, incomes: P.incomes, counties: P.counties, sources: P.sources, about: P.about };
 for (const [key, fn] of Object.entries(simple)) {
   for (const lang of ['en', 'cy']) layout({ lang, key, page: fn(lang), enPath: ROUTES[key][0], cyPath: ROUTES[key][1] });
 }

@@ -1,0 +1,24 @@
+# NHS: staff directly employed by NHS Wales, headcount at 30 June 2026 (StatsWales 1998488a-cd5a-4133-843a-4e894df47249). FTE in brackets.
+#NHS board|headcount|fte|county slugs
+Betsi Cadwaladr University Health Board|21653|18175|isle-of-anglesey,gwynedd,conwy,denbighshire,flintshire,wrexham
+Cardiff and Vale University Health Board|17250|14960|cardiff,vale-of-glamorgan
+Aneurin Bevan University Health Board|16227|13715|blaenau-gwent,caerphilly,monmouthshire,newport,torfaen
+Swansea Bay University Health Board|14458|12602|swansea,neath-port-talbot
+Cwm Taf Morgannwg University Health Board|13751|11767|bridgend,rhondda-cynon-taf,merthyr-tydfil
+Hywel Dda University Health Board|12445|10555|carmarthenshire,ceredigion,pembrokeshire
+Powys Teaching Health Board|2717|2210|powys
+#NHSWALES Welsh Ambulance Services|4562;NHS Wales Shared Services Partnership|6146;Public Health Wales|2642;Velindre University NHS Trust|2022;Digital Health and Care Wales|1266;Health Education and Improvement Wales|550;ALL|115689
+# Civil service: civil servants in post by workplace area (ITL3), 31 March 2025, headcount rounded to nearest 5 (Cabinet Office Civil Service Statistics data browser 2025). Includes Welsh Government staff.
+#CS area|total|top bodies (name=headcount;...)|county slugs
+Cardiff and Vale of Glamorgan|13890|HM Revenue and Customs=4440;Welsh Government=3180;Companies House=1725;HM Prison and Probation Service=870|cardiff,vale-of-glamorgan
+Swansea|9475|DVLA=5850;HM Land Registry=900;Department for Work and Pensions=650;HM Prison and Probation Service=565|swansea
+Monmouthshire and Newport|5715|Office for National Statistics (UK Statistics Authority)=2675;Intellectual Property Office=1645;HM Prison and Probation Service=455;HM Courts and Tribunals Service=215|monmouthshire,newport
+Central Valleys and Bridgend|4190|Department for Work and Pensions=3015;Welsh Government=615;HM Prison and Probation Service=270;National Crime Agency=70|bridgend,rhondda-cynon-taf,merthyr-tydfil
+Flintshire and Wrexham|2580|HM Prison and Probation Service=985;Department for Work and Pensions=820;Defence Equipment and Support=340;Crown Prosecution Service=95|flintshire,wrexham
+South West Wales|1400|Department for Work and Pensions=450;Welsh Government=380;Animal and Plant Health Agency=160;HM Prison and Probation Service=115|carmarthenshire,pembrokeshire
+Mid Wales|930|Welsh Government=480;Ministry of Defence=215;Department for Work and Pensions=105;HM Prison and Probation Service=55|powys,ceredigion
+Gwynedd|865|Department for Work and Pensions=500;Welsh Government=125;HM Prison and Probation Service=95;Animal and Plant Health Agency=60|gwynedd
+Conwy and Denbighshire|715|Welsh Government=420;HM Prison and Probation Service=120;Department for Work and Pensions=115;HM Courts and Tribunals Service=30|conwy,denbighshire
+Gwent Valleys|670|Department for Work and Pensions=260;Welsh Government=165;HM Prison and Probation Service=130;HM Courts and Tribunals Service=80|blaenau-gwent,caerphilly,torfaen
+Neath Port Talbot|260|HM Courts and Tribunals Service=135;Department for Work and Pensions=115|neath-port-talbot
+Isle of Anglesey|240|Ministry of Defence=80;Home Office=55;Department for Work and Pensions=50;Maritime and Coastguard Agency=35|isle-of-anglesey

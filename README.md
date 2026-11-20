@@ -29,6 +29,10 @@ Each file in `raw/` is an extract from one official dataset. Its first line name
 | `raw/bres.txt` | ONS Business Register and Employment Survey via Nomis (annual, autumn) |
 | `raw/business_counts.txt` | ONS UK Business Counts, local units by size, via Nomis (annual, autumn) |
 | `raw/employers.txt` | Named employers: one line each, with sources. Add a company by adding a line |
+| `raw/public_employers.txt` | NHS Wales staff by health board (StatsWales) and civil servants by area (Cabinet Office) |
+| `raw/council_ro.txt` | Council revenue outturn 2025-26: 42 service lines, funding and financing, per council (StatsWales) |
+| `raw/council_ro_trend.txt` | Council net service spending 2002-03 to 2025-26, per council and by service group |
+| `raw/council_social.txt`, `council_edu.txt`, `council_roads.txt` | Detailed social services, education and roads lines per council, 2025-26 |
 | `raw/council_tax.txt` | Welsh Government council tax levels (annual, March) |
 | `raw/aps.txt` | ONS Annual Population Survey via StatsWales (quarterly) |
 | `raw/trade.txt` | HMRC Regional Trade Statistics, `api.uktradeinfo.com` (quarterly) |

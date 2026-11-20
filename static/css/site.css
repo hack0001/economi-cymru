@@ -245,3 +245,39 @@ footer .f-small{line-height:1.6;color:#9aa6ad;font-size:13.5px}
 .emp dl{margin:0 0 var(--s2)}.emp dt{font-size:13.5px;color:var(--slate);margin-top:10px}.emp dd{margin:2px 0 0;font-size:15.5px;color:var(--ink)}
 .emp .src{margin-top:var(--s1)}
 td.l{text-align:left;white-space:normal;min-width:180px}
+
+/* Council spending drill-down tree */
+.tree{max-width:var(--wide);margin:var(--s3) 0 var(--s2);border-top:1px solid var(--ink);font-size:15px}
+.tree div.tn,.tree details.tn>summary{display:grid;grid-template-columns:minmax(0,1fr) 92px 84px 190px 110px;gap:0 14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.tree details.tn{display:block;margin:0;padding:0;border:0;max-width:none}
+.tree details.tn>summary{cursor:pointer;color:var(--ink);font:inherit;list-style:none}
+.tree details.tn>summary::before{content:none}
+.tree details.tn>summary:hover{background:var(--wash)}
+.tree details.tn>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tree details.tn>.tn,.tree details.tn>details{margin:0}
+.tree .tn-n{position:relative;padding-left:22px;min-width:0}
+.tree summary .tn-n::before{content:"+";position:absolute;left:4px;top:-1px;color:var(--accent);font-weight:600}
+.tree details[open]>summary .tn-n::before{content:"−"}
+.tree .d0>summary .tn-n,.tree .d0.leaf .tn-n{font:500 17px/1.35 var(--serif)}
+.tree .d1 .tn-n{padding-left:42px}.tree summary .d1 .tn-n::before,.tree .d1>summary .tn-n::before{left:24px}
+.tree .d2 .tn-n{padding-left:62px}.tree .d2>summary .tn-n::before{left:44px}
+.tree .d3 .tn-n{padding-left:82px}.tree .d3>summary .tn-n::before{left:64px}
+.tree .tn-v,.tree .tn-p{text-align:right;font-variant-numeric:tabular-nums}
+.tree .tn-w{font-size:13.5px;color:var(--slate);font-variant-numeric:tabular-nums}
+.tree .tn-bar{height:6px;background:var(--wash);border-radius:3px;overflow:hidden}
+.tree .tn-bar i{display:block;height:100%;background:var(--accent)}
+.tree .leaf .tn-bar i{opacity:.55}
+.tree .other{color:var(--slate);font-style:italic}
+.tree .tn-head{font-size:12.5px;color:var(--slate);border-bottom:1px solid var(--ink);padding:8px 0}
+.tree .tn-head .tn-bar{background:none;height:auto;overflow:visible}
+.tree .tn-total{font-weight:600;border-bottom:1px solid var(--ink)}
+.tree .tn-total .tn-bar{background:none}
+.tree-help{font-size:14px;color:var(--slate)}
+@media (max-width:760px){
+  .tree div.tn,.tree details.tn>summary{grid-template-columns:minmax(0,1fr) 78px 64px;gap:0 8px}
+  .tree .tn-w,.tree .tn-bar{display:none}
+  .tree{font-size:14px}
+  .tree .d1 .tn-n{padding-left:34px}.tree .d1>summary .tn-n::before{left:18px}
+  .tree .d2 .tn-n{padding-left:46px}.tree .d2>summary .tn-n::before{left:30px}
+  .tree .d3 .tn-n{padding-left:58px}.tree .d3>summary .tn-n::before{left:42px}
+}

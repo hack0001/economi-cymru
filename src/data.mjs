@@ -67,6 +67,14 @@ for (const line of raw('business_counts.txt')) { if (line.startsWith('#')) conti
 const employers = raw('employers.txt').filter((l) => !l.startsWith('#')).map((l) => { const p = l.split('|'); return { slug: p[0], name: p[1], ch: p[2], county: p[3], sector: { en: p[4], cy: p[5] }, wales: { en: p[6], cy: p[7] }, figs: { en: p[8], cy: p[9] }, src: p[10].split(' ') }; });
 
 // ---------- GVA by industry ----------
+const publicEmp = { nhs: [], nhsOther: [], cs: [] };
+for (const l of raw('public_employers.txt')) {
+  if (l.startsWith('#NHSWALES ')) { l.slice(10).split(';').forEach((x) => { const [n, v] = x.split('|'); publicEmp.nhsOther.push({ name: n, head: +v }); }); continue; }
+  if (l.startsWith('#')) continue;
+  const p = l.split('|');
+  if (p.length === 4 && /Health Board/.test(p[0])) publicEmp.nhs.push({ name: p[0], head: +p[1], fte: +p[2], counties: p[3].split(',') });
+  else if (p.length === 4) publicEmp.cs.push({ area: p[0], total: +p[1], bodies: p[2].split(';').map((b) => { const [n, v] = b.split('='); return { name: n, head: +v }; }), counties: p[3].split(',') });
+}
 const industry = { W: {}, UK: {} };
 for (const line of raw('gva_industry.txt')) {
   if (line.startsWith('#')) continue;
@@ -176,7 +184,7 @@ export function laProfile(la) {
     aps: { periods: APS_PERIODS, E: a.E, I: a.I, U: a.U, Ulow: a.Ulow, EL: a.EL },
     earn: earn[la.en],
     gdhi: gdhi[la.en],
-    ind: laInd[la.en], bres: bres[la.en], ukbc: ukbc[la.en], employers: employers.filter((e) => e.county === la.slug),
+    ind: laInd[la.en], bres: bres[la.en], ukbc: ukbc[la.en], employers: employers.filter((e) => e.county === la.slug), nhs: publicEmp.nhs.find((b) => b.counties.includes(la.slug)), cs: publicEmp.cs.find((c) => c.counties.includes(la.slug)),
   };
 }
 
@@ -208,7 +216,7 @@ export const wales = {
   aps: { periods: APS_PERIODS, ...aps['Wales'] }, apsUK: aps['United Kingdom'],
   fiscal: { years: FISCAL_YEARS, ph: fiscal.ph, revTotal, expTotal, nfbTotal, ukShare, aboveShare, rev: fiscal.rev, exp: fiscal.exp },
   trade, earn: { years: EARN_YEARS, data: earn }, gdhi: { years: GDHI_YEARS, data: gdhi }, budget,
-  bres: bres['Wales'], ukbc: ukbc['Wales'], employers,
+  bres: bres['Wales'], ukbc: ukbc['Wales'], employers, publicEmp,
 };
 export { SECTIONS, IND_CODES };
 
@@ -237,5 +245,11 @@ export const SOURCES = {
   writ: { en: 'HMRC, Welsh Income Tax Outturn Statistics 2023 to 2024', url: 'https://www.gov.uk/government/statistics/welsh-income-tax-outturn-statistics-2023-to-2024' },
   senedd: { en: 'Senedd Research, Fiscal devolution in Wales', url: 'https://research.senedd.wales/financial-scrutiny/fiscal-devolution-in-wales/' },
   ifg: { en: 'Institute for Government, Barnett formula explainer', url: 'https://www.instituteforgovernment.org.uk/explainer/barnett-formula' },
+  ro: { en: 'Welsh Government, Detailed summary of revenue outturn expenditure by authority and service, 2002-03 to 2025-26 (StatsWales)', url: 'https://stats.gov.wales/en-GB/b483d2c5-e60e-4dfb-b03a-49df9e1931a0' },
+  roSoc: { en: 'Welsh Government, Social services revenue outturn expenditure by authority and client group (StatsWales)', url: 'https://stats.gov.wales/en-GB/b93670e2-ddc5-472b-a26b-bf58cf12a40e' },
+  roEdu: { en: 'Welsh Government, Education revenue outturn expenditure by authority and service (StatsWales)', url: 'https://stats.gov.wales/en-GB/c696855c-2139-4f34-8463-78899be3288d' },
+  roRoads: { en: 'Welsh Government, Roads and transport revenue outturn expenditure by authority and service (StatsWales)', url: 'https://stats.gov.wales/en-GB/475612f0-9e2f-4966-9fcd-b790b5a81b1f' },
+  nhsStaff: { en: 'Welsh Government, Staff directly employed by the NHS by staff group and organisation (StatsWales), 30 June 2026', url: 'https://stats.gov.wales/en-GB/1998488a-cd5a-4133-843a-4e894df47249' },
+  csStats: { en: 'Cabinet Office, Civil Service Statistics data browser 2025: civil servants by organisation and area', url: 'https://civil-service-statistics.jdac.service.cabinetoffice.gov.uk/data_browser_2025/Organisation/Region_ITL3/index.html' },
   gdpQ: { en: 'Welsh Government, Regional GDP: July to September 2025', url: 'https://www.gov.wales/node/77954' },
 };

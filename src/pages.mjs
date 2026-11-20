@@ -1,5 +1,6 @@
 import { wales, profiles, ranks, SOURCES as S, LAS } from './data.mjs';
 import { ROUTES, SITE_NAME } from './config.mjs';
+import { countyCouncil } from './councilpages.mjs';
 import { esc, last, sum, num, gbp, bn, mn, pct, slugify, T, stat, chart, table, srcLink } from './lib.mjs';
 
 export const href = (key, lang) => ROUTES[key][lang === 'cy' ? 1 : 0];
@@ -64,6 +65,7 @@ export function home(lang) {
     ['finances', t('Tax raised and money spent in Wales', 'Treth a godir ac arian a werir yng Nghymru'), t('Revenue, spending and the gap between them every year since 1999.', 'Refeniw, gwariant a’r bwlch rhyngddynt bob blwyddyn ers 1999.'), bn(K.gap), t('gap in 2024-25', 'bwlch yn 2024-25')],
     ['economy', t('What Wales earns its living from', 'Sut mae Cymru’n ennill ei bywoliaeth'), t('Output by industry since 1998, and which areas produce the most.', 'Allbwn fesul diwydiant ers 1998, a pha ardaloedd sy’n cynhyrchu fwyaf.'), bn(K.gva), t('output in 2024', 'allbwn yn 2024')],
     ['trade', t('Exports and imports', 'Allforion a mewnforion'), t('What Wales sells abroad, what it buys and who it trades with.', 'Beth mae Cymru’n ei werthu dramor, beth mae’n ei brynu a gyda phwy.'), '£' + num(K.tradeExp, 1) + 'bn', t('goods exports 2025', 'allforion nwyddau 2025')],
+    ['councils', t('Council spending', 'Gwariant cynghorau'), t('Where every pound of council money goes, line by line, for all 22 councils.', 'I ble mae pob punt o arian cynghorau yn mynd, fesul llinell, ar gyfer pob un o’r 22 cyngor.'), '£9.83bn', t('net, 2025-26', 'net, 2025-26')],
     ['counciltax', t('Council tax', 'Treth gyngor'), t('Band D bills for all 22 councils, and how they have risen since 1996.', 'Biliau Band D ar gyfer pob un o’r 22 cyngor, a sut maen nhw wedi codi ers 1996.'), gbp(K.ct), t('average band D', 'band D cyfartalog')],
     ['jobs', t('Jobs and unemployment', 'Swyddi a diweithdra'), t('Employment, unemployment and inactivity in every county.', 'Cyflogaeth, diweithdra ac anweithgarwch ym mhob sir.'), pct(K.emp), t('employment rate', 'cyfradd cyflogaeth')],
     ['incomes', t('Wages and household income', 'Cyflogau ac incwm aelwydydd'), t('Pay and disposable income by county, compared with the UK.', 'Cyflog ac incwm gwario fesul sir, o’i gymharu â’r DU.'), gbp(last(wales.earn.data.Wales)), t('median weekly pay', 'cyflog wythnosol canolrifol')],
@@ -532,6 +534,7 @@ ${chart({ lang, title: t(`Band D council tax in ${n}, £`, `Treth gyngor Band D 
 ${chart({ lang, title: t(`Employment rate in ${n}, ages 16–64`, `Cyfradd cyflogaeth yn ${n}, 16–64 oed`), sub: t('Survey estimates; single-year movements may not be significant.', 'Amcangyfrifon arolwg; efallai na fydd symudiadau un flwyddyn yn arwyddocaol.'), source: src('aps'),
     cfg: { type: 'line', labels: per, series: [{ name: n, values: p.aps.E }, { name: t('Wales', 'Cymru'), values: wales.aps.E, dash: '5 4', width: 1.5, color: '--c8' }], fmt: { suffix: '%', dec: 1 } } })}
 ${countyBusiness(p, lang)}
+${countyCouncil(p, lang)}
 <h2>${t(`Other counties in ${p.region}`, `Siroedd eraill yn ${regionCy[p.region]}`)}</h2>
 <div class="county-grid">${same.map((q) => `<a href="${countyHref(q, lang)}">${nm(q, lang)}<small>${t('Output', 'Allbwn')} ${bn(last(q.gva.m))}, band D ${gbp(last(q.ct.v))}</small></a>`).join('')}</div>
 <p><a href="${href('counties', lang)}">${t('Compare all 22 counties ', 'Cymharu pob un o’r 22 sir ')}</a></p>
@@ -609,6 +612,7 @@ function employersTable(list, lang) {
 
 export function business(lang) {
   const t = T(lang);
+  const PE = { nhsAll: wales.publicEmp.nhsOther.find((x) => x.name === 'ALL').head, nhsList: [...wales.publicEmp.nhs, ...wales.publicEmp.nhsOther.filter((x) => x.name !== 'ALL')].sort((a, b) => b.head - a.head) };
   const B = wales.bres, U = wales.ukbc;
   const secs = Object.keys(SEC);
   const big = U.b[6] + U.b[7] + U.b[8];
@@ -648,7 +652,15 @@ ${chart({ lang, legend: false, title: t('Workplaces in Wales by number of staff,
 <p>${t('Some of the largest employers with a major base in Wales. Wherever possible the figures come from accounts filed at Companies House or from the company’s own results. Company accounts cover the whole company, which often includes sites outside Wales, so they do not show how much a company contributes in any one county.', 'Rhai o’r cyflogwyr mwyaf sydd â chanolfan fawr yng Nghymru. Lle bo modd, daw’r ffigurau o gyfrifon a ffeiliwyd yn Nhŷ’r Cwmnïau neu o ganlyniadau’r cwmni ei hun. Mae cyfrifon cwmni’n cwmpasu’r cwmni cyfan, sy’n aml yn cynnwys safleoedd y tu allan i Gymru, felly nid ydynt yn dangos faint mae cwmni’n ei gyfrannu mewn unrhyw sir.')}</p>
 ${employersTable(wales.employers, lang)}
 <div class="note"><p><strong>${t('What the data cannot tell you', 'Yr hyn na all y data ei ddweud wrthych')}</strong></p>
-<p>${t('HMRC does not publish how much tax any individual company pays, and company accounts report one tax figure for the whole company. There is no official measure of how much tax a company pays in a particular part of Wales. The largest employers in most counties are public bodies – health boards, councils and universities – which this list does not cover.', 'Nid yw CThEF yn cyhoeddi faint o dreth y mae unrhyw gwmni unigol yn ei thalu, ac mae cyfrifon cwmni’n adrodd un ffigur treth ar gyfer y cwmni cyfan. Nid oes mesur swyddogol o faint o dreth y mae cwmni’n ei thalu mewn rhan benodol o Gymru. Cyrff cyhoeddus – byrddau iechyd, cynghorau a phrifysgolion – yw’r cyflogwyr mwyaf yn y rhan fwyaf o siroedd, ac nid yw’r rhestr hon yn eu cynnwys.')}</p></div>
+<p>${t('HMRC does not publish how much tax any individual company pays, and company accounts report one tax figure for the whole company, wherever its staff work. So there is no official measure of how much tax a company pays in a particular part of Wales. Business rates are paid site by site, but councils do not publish individual bills; Valero’s figure for its Pembroke refinery is one of the few a company has published itself.', 'Nid yw CThEF yn cyhoeddi faint o dreth y mae unrhyw gwmni unigol yn ei thalu, ac mae cyfrifon cwmni’n adrodd un ffigur treth ar gyfer y cwmni cyfan, ble bynnag mae ei staff yn gweithio. Felly nid oes mesur swyddogol o faint o dreth y mae cwmni’n ei thalu mewn rhan benodol o Gymru. Telir ardrethi busnes fesul safle, ond nid yw cynghorau’n cyhoeddi biliau unigol; ffigur Valero ar gyfer ei burfa ym Mhenfro yw un o’r ychydig y mae cwmni wedi’i gyhoeddi ei hun.')}</p></div>
+
+<h2>${t('The largest public-sector employers', 'Y cyflogwyr mwyaf yn y sector cyhoeddus')}</h2>
+<p>${t(`In most counties the biggest single employer is public. NHS Wales directly employed ${num(PE.nhsAll)} people in June 2026, most of them in the seven health boards. The UK and Welsh governments employ civil servants in large offices such as the DVLA in Swansea, the Office for National Statistics in Newport and HMRC in Cardiff.`, `Yn y rhan fwyaf o siroedd, y cyflogwr unigol mwyaf yw un cyhoeddus. Roedd GIG Cymru yn cyflogi ${num(PE.nhsAll)} o bobl yn uniongyrchol ym mis Mehefin 2026, y rhan fwyaf ohonynt yn y saith bwrdd iechyd. Mae llywodraethau’r DU a Chymru yn cyflogi gweision sifil mewn swyddfeydd mawr fel y DVLA yn Abertawe, y Swyddfa Ystadegau Gwladol yng Nghasnewydd a CThEF yng Nghaerdydd.`)}</p>
+${chart({ lang, legend: false, title: t('NHS Wales staff by organisation, June 2026', 'Staff GIG Cymru fesul sefydliad, Mehefin 2026'), sub: t('Headcount of staff directly employed. GPs and most dentists, pharmacists and opticians are independent contractors and are not included.', 'Nifer y staff a gyflogir yn uniongyrchol. Nid yw meddygon teulu a’r rhan fwyaf o ddeintyddion, fferyllwyr ac optegwyr, sy’n gontractwyr annibynnol, wedi’u cynnwys.'), source: src('nhsStaff'),
+    cfg: { type: 'hbar', labels: PE.nhsList.map((x) => x.name), series: [{ name: t('Staff', 'Staff'), values: PE.nhsList.map((x) => x.head), color: '--c2' }], fmt: {} } })}
+${table({ head: [t('Area', 'Ardal'), t('Civil servants, March 2025', 'Gweision sifil, Mawrth 2025'), t('Largest employers', 'Cyflogwyr mwyaf')],
+    rows: wales.publicEmp.cs.map((c) => [esc(c.area), { v: c.total, t: num(c.total) }, { v: c.bodies[0].head, t: c.bodies.map((b) => `${esc(b.name)} (${num(b.head)})`).join(', '), cls: 'l' }]) })}
+<p class="src">${t('Source', 'Ffynhonnell')}: ${src('csStats')}. ${t('Headcounts rounded to the nearest 5. Areas are the official statistical groupings of local authorities. Councils, universities and schools are also large employers but are not civil servants.', 'Niferoedd wedi’u talgrynnu i’r 5 agosaf. Yr ardaloedd yw’r grwpiau ystadegol swyddogol o awdurdodau lleol. Mae cynghorau, prifysgolion ac ysgolion hefyd yn gyflogwyr mawr ond nid ydynt yn weision sifil.')}</p>
 `;
   return {
     title: t('Business in Wales: jobs by industry, workplaces and major employers', 'Busnes yng Nghymru: swyddi fesul diwydiant, gweithleoedd a chyflogwyr mawr'),
@@ -678,6 +690,9 @@ ${chart({ lang, legend: false, title: t('Economic output by industry, 2024, £m'
 </div>
 ${table({ sortable: false, head: [t('Workplace size (staff)', 'Maint gweithle (staff)'), ...SIZE_LABELS], rows: [[t('Number of workplaces, 2026', 'Nifer y gweithleoedd, 2026'), ...p.ukbc.b.map((v) => num(v))]] })}
 <p class="src">${t('Source', 'Ffynhonnell')}: ${src('ukbc')}. ${t('Rounded to the nearest 5.', 'Wedi’u talgrynnu i’r 5 agosaf.')}</p>
+<h3>${t(`Public-sector employers in ${n}`, `Cyflogwyr sector cyhoeddus yn ${n}`)}</h3>
+<p>${t(`${n} is served by ${esc(p.nhs.name)}, which directly employed ${num(p.nhs.head)} people across ${p.nhs.counties.length === 1 ? 'the county' : `${p.nhs.counties.length} counties`} in June 2026. ${p.cs.counties.length === 1 ? `${n} had` : `The ${esc(p.cs.area)} area had`} ${num(p.cs.total)} civil servants in March 2025; the largest employers were ${p.cs.bodies.slice(0, 3).map((b) => `${esc(b.name)} (${num(b.head)})`).join(', ')}.`, `Gwasanaethir ${n} gan ${esc(p.nhs.name)}, a oedd yn cyflogi ${num(p.nhs.head)} o bobl yn uniongyrchol ar draws ${p.nhs.counties.length === 1 ? 'y sir' : `${p.nhs.counties.length} sir`} ym mis Mehefin 2026. Roedd gan ardal ${esc(p.cs.area)} ${num(p.cs.total)} o weision sifil ym mis Mawrth 2025; y cyflogwyr mwyaf oedd ${p.cs.bodies.slice(0, 3).map((b) => `${esc(b.name)} (${num(b.head)})`).join(', ')}.`)}</p>
+<p class="src">${t('Sources', 'Ffynonellau')}: ${src('nhsStaff')}; ${src('csStats')}.</p>
 ${p.employers.length ? `<h3>${t(`Major employers based in ${n}`, `Cyflogwyr mawr yn ${n}`)}</h3>${employersTable(p.employers, lang)}` : ''}
 <p><a href="${href('business', lang)}">${t('Compare business and jobs across all counties', 'Cymharu busnes a swyddi ar draws pob sir')}</a></p>`;
 }
